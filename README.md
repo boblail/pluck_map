@@ -1,8 +1,86 @@
-# PluckMapPresenter
+# PluckMap::Presenter
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pluck_map`. To experiment with that code, run `bin/console` for an interactive prompt.
+The PluckMap presenter provides a DSL for creating performant presenters. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
 
-TODO: Delete this and the text above, and describe your gem
+Let's take an example. Suppose you have an action like this:
+
+```ruby
+  def index
+    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    render json: @messages.map { |message|
+      { id: message.id,
+        postedAt: message.created_at,
+        text: message.text } }
+  end
+```
+
+This, of course, _instantiates_ a `Message` for every result, though we aren't really using a lot of ActiveRecord's features (in this action, at least). We instantiate all those objects on line 3 and then throw them away immediately afterward.
+
+We can skip that step by using `pluck`:
+
+```ruby
+  def index
+    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    render json: @messages.pluck(:id, :created_at, :text)
+      .map { |id, created, text|
+        { id: id,
+          postedAt: created_at,
+          text: text } }
+  end
+```
+
+In many cases, this is significantly faster.
+
+But, now, if we needed to present a new attribute (say, `channel`), we have to write it _four_ times:
+
+```diff
+  def index
+    @messages = Message.created_by(current_user).after(3.weeks.ago)
+-   render json: @messages.pluck(:id, :created_at, :text)
++   render json: @messages.pluck(:id, :created_at, :text, :channel)
+-     .map { |id, created, text|
++     .map { |id, created, text, channel|
+        { id: id,
+          postedAt: created_at,
+-         text: text } }
++         text: text,
++         channel: channel } }
+  end
+```
+
+When we're presenting large or complex objects, the list of attributes we send to `pluck` or arguments we declare in the block passed to `map` can get pretty awkward.
+
+The `PluckMap::Presenter` DSL is just a shortcut for generating the above pluck-map pattern in a more succinct way. The example above looks like this:
+
+```ruby
+  def index
+    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    presenter = PluckMap::Presenter.new do |q|
+      q.id
+      q.postedAt select: :created_at
+      q.text
+      q.channel
+    end
+    render json: presenter.to_h
+  end
+```
+
+This DSL also makes it easy to make fields optional:
+
+```diff
+  def index
+    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    presenter = PluckMap::Presenter.new do |q|
+      q.id
+      q.postedAt select: :created_at
+      q.text
+-     q.channel
++     q.channel if params[:fields] =~ /channel/
+    end
+    render json: presenter.to_h
+  end
+```
+
 
 ## Installation
 
@@ -20,9 +98,6 @@ Or install it yourself as:
 
     $ gem install pluck_map
 
-## Usage
-
-TODO: Write usage instructions here
 
 ## Development
 
@@ -32,5 +107,5 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/pluck_map.
+Bug reports and pull requests are welcome on GitHub at https://github.com/boblail/pluck_map.
 
