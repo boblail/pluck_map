@@ -22,7 +22,9 @@ module PluckMap
 
     def method_missing(attribute_name, *args, &block)
       return super if initialized?
-      attributes.push PluckMap::Attribute.new(attribute_name, args.extract_options!)
+      options = args.extract_options!
+      options[:value] = args.first if args.any?
+      attributes.push PluckMap::Attribute.new(attribute_name, options)
       :attribute_added
     end
 

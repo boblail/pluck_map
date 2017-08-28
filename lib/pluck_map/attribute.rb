@@ -6,11 +6,17 @@ module PluckMap
       @id = id
       @selects = Array(options.fetch(:select, id))
       @name = options.fetch(:as, id)
-      @alias = name.to_s.gsub('_', ' ')
+      @alias = name.to_s.tr("_", " ")
       @block = options[:map]
-      raise ArgumentError, "You must select at least one column" if selects.empty?
-      raise ArgumentError, "You must define a block if you are going to select " <<
-        "more than one expression from the database" if selects.length > 1 && !block
+
+      if options[:value]
+        @value = options[:value]
+        @selects = []
+      else
+        raise ArgumentError, "You must select at least one column" if selects.empty?
+        raise ArgumentError, "You must define a block if you are going to select " <<
+          "more than one expression from the database" if selects.length > 1 && !block
+      end
     end
 
     def apply(object)
@@ -44,6 +50,7 @@ module PluckMap
     # of keys. This method determines which values pertain
     # to it by figuring out which order its keys were selected in
     def to_ruby(keys)
+      return @value.inspect if defined?(@value)
       indexes = self.keys.map { |key| keys.index(key) }
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"
