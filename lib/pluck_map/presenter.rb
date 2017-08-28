@@ -77,7 +77,7 @@ module PluckMap
       ruby = <<-RUBY
       def to_h(query)
         pluck(query) do |results|
-          results.map { |values| values = Array(values); { #{attributes.map { |attribute| "#{attribute.name.inspect} => #{(attribute.to_ruby(keys))}"}.join(", ")} } }
+          results.map { |values| values = Array(values); { #{attributes.map { |attribute| "#{attribute.name.inspect} => #{attribute.to_ruby(keys)}"}.join(", ")} } }
         end
       end
       RUBY
