@@ -9,7 +9,7 @@ module PluckMap
       @alias = name.to_s.tr("_", " ")
       @block = options[:map]
 
-      if options[:value]
+      if options.key? :value
         @value = options[:value]
         @selects = []
       else
