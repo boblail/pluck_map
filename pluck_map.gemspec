@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "pluck_map"
   spec.version       = PluckMapPresenter::VERSION
   spec.authors       = ["Bob Lail"]
-  spec.email         = ["bob.lail@cph.org"]
+  spec.email         = ["bob.lailfamily@gmail.com"]
 
   spec.summary       = "A DSL for presenting ActiveRecord::Relations without instantiating ActiveRecord models"
   spec.homepage      = "https://github.com/boblail/pluck_map"
