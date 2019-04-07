@@ -3,28 +3,30 @@
 [![Gem Version](https://badge.fury.io/rb/pluck_map.svg)](https://rubygems.org/gems/pluck_map)
 [![Build Status](https://travis-ci.org/boblail/pluck_map.svg)](https://travis-ci.org/boblail/pluck_map)
 
-The PluckMap presenter provides a DSL for creating performant presenters. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
+This library provides a DSL for presenting ActiveRecord::Relations without instantiating ActiveRecord models. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
 
-Let's take an example. Suppose you have an action like this:
+Suppose you have an action like this:
 
 ```ruby
   def index
-    @messages = Message.created_by(current_user).after(3.weeks.ago)
-    render json: @messages.map { |message|
+    messages = Message.created_by(current_user).after(3.weeks.ago)
+
+    render json: messages.map { |message|
       { id: message.id,
         postedAt: message.created_at,
         text: message.text } }
   end
 ```
 
-This, of course, _instantiates_ a `Message` for every result, though we aren't really using a lot of ActiveRecord's features (in this action, at least). We instantiate all those objects on line 3 and then throw them away immediately afterward.
+This instantiates a `Message` for every result, gets the attributes out of it, and then immediately discards it.
 
-We can skip that step by using `pluck`:
+We can skip that unnecessary instantiation by using `pluck`:
 
 ```ruby
   def index
-    @messages = Message.created_by(current_user).after(3.weeks.ago)
-    render json: @messages.pluck(:id, :created_at, :text)
+    messages = Message.created_by(current_user).after(3.weeks.ago)
+
+    render json: messages.pluck(:id, :created_at, :text)
       .map { |id, created, text|
         { id: id,
           postedAt: created_at,
@@ -32,15 +34,15 @@ We can skip that step by using `pluck`:
   end
 ```
 
-In many cases, this is significantly faster.
+This tends to be about one order of magnitude faster the first example.
 
-But, now, if we needed to present a new attribute (say, `channel`), we have to write it _four_ times:
+It is straightforward but verbose (we repeat the attribute names at least three times) and changing a block like this produces noisy diffs:
 
 ```diff
   def index
-    @messages = Message.created_by(current_user).after(3.weeks.ago)
--   render json: @messages.pluck(:id, :created_at, :text)
-+   render json: @messages.pluck(:id, :created_at, :text, :channel)
+    messages = Message.created_by(current_user).after(3.weeks.ago)
+-   render json: messages.pluck(:id, :created_at, :text)
++   render json: messages.pluck(:id, :created_at, :text, :channel)
 -     .map { |id, created, text|
 +     .map { |id, created, text, channel|
         { id: id,
@@ -51,28 +53,30 @@ But, now, if we needed to present a new attribute (say, `channel`), we have to w
   end
 ```
 
-When we're presenting large or complex objects, the list of attributes we send to `pluck` or arguments we declare in the block passed to `map` can get pretty awkward.
+And when we're presenting large or complex objects, the list of attributes we send to `pluck` or arguments we declare in the `map` block can get unwieldy!
 
-The `PluckMap::Presenter` DSL is just a shortcut for generating the above pluck-map pattern in a more succinct way. The example above looks like this:
+The `PluckMap::Presenter` is simply a shorthand for generating the above pluck-map pattern. Using it, we could write our example like this:
 
 ```ruby
   def index
-    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    messages = Message.created_by(current_user).after(3.weeks.ago)
     presenter = PluckMap::Presenter.new do |q|
       q.id
       q.postedAt select: :created_at
       q.text
       q.channel
     end
-    render json: presenter.to_h
+    render json: presenter.to_h(messages)
   end
 ```
+
+Using that definition, `PluckMap::Presenter` dynamically generates a `.to_h` method that is implemented exactly like the example above that uses `.pluck` and `.map`.
 
 This DSL also makes it easy to make fields optional:
 
 ```diff
   def index
-    @messages = Message.created_by(current_user).after(3.weeks.ago)
+    messages = Message.created_by(current_user).after(3.weeks.ago)
     presenter = PluckMap::Presenter.new do |q|
       q.id
       q.postedAt select: :created_at
@@ -80,7 +84,7 @@ This DSL also makes it easy to make fields optional:
 -     q.channel
 +     q.channel if params[:fields] =~ /channel/
     end
-    render json: presenter.to_h
+    render json: presenter.to_h(messages)
   end
 ```
 
@@ -104,9 +108,10 @@ Or install it yourself as:
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake false` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
 
 ## Contributing
 
