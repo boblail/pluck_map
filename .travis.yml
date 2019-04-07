@@ -1,6 +1,14 @@
 language: ruby
 rvm: 2.5.5
 
+# Rails 6 requires Postgres 9.3+
+addons:
+  postgresql: "9.3"
+
+services:
+  - postgresql
+  - mysql
+
 # Test on supported versions of Rails + Edge Rails
 # (When Rails 6.0 is released, drop Rails 4.2)
 matrix:

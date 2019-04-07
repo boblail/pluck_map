@@ -25,6 +25,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest-reporters"
   spec.add_development_dependency "minitest-reporters-turn_reporter"
   spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "mysql2"
+  spec.add_development_dependency "pg"
   spec.add_development_dependency "database_cleaner"
   spec.add_development_dependency "shoulda-context"
   spec.add_development_dependency "pry"

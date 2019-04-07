@@ -1,6 +1,7 @@
 appraise "rails-4.2" do
   gem "activerecord", "~> 4.2.0"
   gem "sqlite3", "~> 1.3.6"
+  gem "pg", "~> 0.20"
 end
 
 appraise "rails-5.0" do

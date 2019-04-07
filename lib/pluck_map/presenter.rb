@@ -50,7 +50,7 @@ module PluckMap
 
     def pluck(query)
       # puts "\e[95m#{query.select(*selects(query.table_name)).to_sql}\e[0m"
-      results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects(query.table_name)) }
+      results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects(query.model)) }
       return results unless block_given?
       benchmark("map(#{query.table_name})") { yield results }
     end
@@ -65,13 +65,13 @@ module PluckMap
   private
     attr_reader :attributes_by_id, :keys
 
-    def selects(table_name)
+    def selects(model)
       attributes.flat_map do |attribute|
         if attribute.selects.length != 1
           attribute.selects
         else
           select = attribute.selects[0]
-          select = "\"#{table_name}\".\"#{select}\"" if select.is_a?(Symbol)
+          select = "#{model.quoted_table_name}.#{model.connection.quote_column_name(select)}" if select.is_a?(Symbol)
           Arel.sql("#{select} AS \"#{attribute.alias}\"")
         end
       end.uniq
