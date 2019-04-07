@@ -72,7 +72,7 @@ module PluckMap
         else
           select = attribute.selects[0]
           select = "\"#{table_name}\".\"#{select}\"" if select.is_a?(Symbol)
-          "#{select} AS \"#{attribute.alias}\""
+          Arel.sql("#{select} AS \"#{attribute.alias}\"")
         end
       end.uniq
     end
