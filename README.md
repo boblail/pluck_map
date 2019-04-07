@@ -1,5 +1,8 @@
 # PluckMap::Presenter
 
+[![Gem Version](https://badge.fury.io/rb/pluck_map.svg)](https://rubygems.org/gems/pluck_map)
+[![Build Status](https://travis-ci.org/boblail/pluck_map.svg)](https://travis-ci.org/boblail/pluck_map)
+
 The PluckMap presenter provides a DSL for creating performant presenters. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
 
 Let's take an example. Suppose you have an action like this:
@@ -108,4 +111,3 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/boblail/pluck_map.
-
