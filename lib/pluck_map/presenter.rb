@@ -72,7 +72,7 @@ module PluckMap
         else
           select = attribute.selects[0]
           select = "#{model.quoted_table_name}.#{model.connection.quote_column_name(select)}" if select.is_a?(Symbol)
-          Arel.sql("#{select} AS \"#{attribute.alias}\"")
+          Arel.sql(select)
         end
       end.uniq
     end

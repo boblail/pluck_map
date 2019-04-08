@@ -1,12 +1,12 @@
 module PluckMap
   class Attribute
-    attr_reader :id, :selects, :name, :alias, :block
+    attr_reader :id, :selects, :name, :block
+    alias keys selects
 
     def initialize(id, options={})
       @id = id
       @selects = Array(options.fetch(:select, id))
       @name = options.fetch(:as, id)
-      @alias = name.to_s.tr("_", " ")
       @block = options[:map]
 
       if options.key? :value
@@ -21,17 +21,6 @@ module PluckMap
 
     def apply(object)
       block.call(*object)
-    end
-
-    # These are the names of the values that are returned
-    # from the database (every row returned by the database
-    # will be a hash of key-value pairs)
-    #
-    # If we are only selecting one thing from the database
-    # then the PluckMapPresenter will automatically alias
-    # the select-expression, so the key will be the alias.
-    def keys
-      selects.length == 1 ? [self.alias] : selects
     end
 
     def no_map?
