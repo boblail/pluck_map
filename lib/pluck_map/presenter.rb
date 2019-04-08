@@ -1,15 +1,8 @@
-require "pluck_map/version"
 require "pluck_map/attribute_builder"
-require "pluck_map/null_logger"
 
 module PluckMap
   class Presenter
     attr_reader :attributes
-
-    @logger = defined?(Rails) ? Rails.logger : PluckMap::NullLogger.new
-    class << self
-      attr_accessor :logger
-    end
 
     def initialize(&block)
       @attributes = PluckMap::AttributeBuilder.build(&block)
@@ -39,7 +32,7 @@ module PluckMap
     def benchmark(title)
       result = nil
       ms = Benchmark.ms { result = yield }
-      self.class.logger.info "\e[33m#{title}: \e[1m%.1fms\e[0m" % ms
+      PluckMap.logger.info "\e[33m#{title}: \e[1m%.1fms\e[0m" % ms
       result
     end
 
