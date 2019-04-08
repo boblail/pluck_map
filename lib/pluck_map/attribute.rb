@@ -1,7 +1,6 @@
 module PluckMap
   class Attribute
     attr_reader :id, :selects, :name, :value, :block
-    alias keys selects
 
     def initialize(id, options={})
       @id = id
@@ -36,11 +35,11 @@ module PluckMap
     # correspond to this Attribute.
     #
     # The array of values will be correspond to the array
-    # of keys. This method determines which values pertain
-    # to it by figuring out which order its keys were selected in
-    def to_ruby(keys)
+    # of selects. This method determines which values pertain
+    # to it by figuring out which order its selects were selected in
+    def to_ruby(selects)
       return @value.inspect if defined?(@value)
-      indexes = self.keys.map { |key| keys.index(key) }
+      indexes = self.selects.map { |select| selects.index(select) }
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"
       ruby = "invoke(:\"#{id}\", #{ruby})" if block

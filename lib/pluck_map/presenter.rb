@@ -7,7 +7,7 @@ module PluckMap
     def initialize(&block)
       @attributes = PluckMap::AttributeBuilder.build(&block)
       @attributes_by_id = attributes.index_by(&:id).with_indifferent_access
-      @keys = attributes.flat_map(&:keys).uniq
+      @selects = attributes.flat_map(&:selects).uniq
 
       define_presenters!
     end
@@ -23,8 +23,8 @@ module PluckMap
     end
 
     def pluck(query)
-      # puts "\e[95m#{query.select(*selects(query.table_name)).to_sql}\e[0m"
-      results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects(query.model)) }
+      # puts "\e[95m#{query.select(*selects).to_sql}\e[0m"
+      results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects) }
       return results unless block_given?
       benchmark("map(#{query.table_name})") { yield results }
     end
@@ -37,19 +37,7 @@ module PluckMap
     end
 
   private
-    attr_reader :attributes_by_id, :keys
-
-    def selects(model)
-      attributes.flat_map do |attribute|
-        if attribute.selects.length != 1
-          attribute.selects
-        else
-          select = attribute.selects[0]
-          select = "#{model.quoted_table_name}.#{model.connection.quote_column_name(select)}" if select.is_a?(Symbol)
-          Arel.sql(select)
-        end
-      end.uniq
-    end
+    attr_reader :attributes_by_id, :selects
 
     def invoke(attribute_id, object)
       attributes_by_id.fetch(attribute_id).apply(object)
@@ -59,12 +47,17 @@ module PluckMap
       ruby = <<-RUBY
       def to_h(query)
         pluck(query) do |results|
-          results.map { |values| values = Array(values); { #{attributes.map { |attribute| "#{attribute.name.inspect} => #{attribute.to_ruby(keys)}"}.join(", ")} } }
+          results.map { |values| values = Array(values); { #{attributes.map { |attribute| "#{attribute.name.inspect} => #{attribute.to_ruby(selects)}"}.join(", ")} } }
         end
       end
       RUBY
       # puts "\e[34m#{ruby}\e[0m" # <-- helps debugging PluckMapPresenter
       class_eval ruby, __FILE__, __LINE__ - 7
+    end
+
+    def keys
+      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated; use #selects instead"
+      selects
     end
 
   end

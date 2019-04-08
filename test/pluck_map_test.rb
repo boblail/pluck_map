@@ -28,6 +28,18 @@ class PluckMapTest < Minitest::Test
     ], presenter.to_h(authors)
   end
 
+  should "pluck attributes from the relation's table when joins make them ambiguous" do
+    Book.create!(title: "The Chosen", author: authors.second)
+
+    presenter = PluckMap::Presenter.new do
+      id
+    end
+
+    authors_with_books = authors.joins("LEFT OUTER JOIN books ON books.author_id=authors.id")
+
+    assert_equal [{ id: 1 }, { id: 2 }], presenter.to_h(authors_with_books)
+  end
+
   context "when :value is given" do
     should "present the value statically for each result" do
       presenter = PluckMap::Presenter.new do
