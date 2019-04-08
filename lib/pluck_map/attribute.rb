@@ -1,6 +1,6 @@
 module PluckMap
   class Attribute
-    attr_reader :id, :selects, :name, :block
+    attr_reader :id, :selects, :name, :value, :block
     alias keys selects
 
     def initialize(id, options={})
@@ -45,6 +45,27 @@ module PluckMap
       ruby = "values.values_at(#{indexes.join(", ")})"
       ruby = "invoke(:\"#{id}\", #{ruby})" if block
       ruby
+    end
+
+
+
+    def values
+      [id, selects, name, value, block]
+    end
+
+    def ==(other)
+      return false if self.class != other.class
+      self.values == other.values
+    end
+
+    def hash
+      values.hash
+    end
+
+    def eql?(other)
+      return true if self.equal?(other)
+      return false if self.class != other.class
+      self.values.eql?(other.values)
     end
   end
 end

@@ -1,5 +1,5 @@
 require "pluck_map/version"
-require "pluck_map/attribute"
+require "pluck_map/attribute_builder"
 require "pluck_map/null_logger"
 
 module PluckMap
@@ -12,26 +12,11 @@ module PluckMap
     end
 
     def initialize(&block)
-      @attributes = []
-      if block.arity == 1
-        block.call(self)
-      else
-        instance_eval(&block)
-      end
-      @initialized = true
-
+      @attributes = PluckMap::AttributeBuilder.build(&block)
       @attributes_by_id = attributes.index_by(&:id).with_indifferent_access
       @keys = attributes.flat_map(&:keys).uniq
 
       define_presenters!
-    end
-
-    def method_missing(attribute_name, *args, &block)
-      return super if initialized?
-      options = args.extract_options!
-      options[:value] = args.first unless args.empty?
-      attributes.push PluckMap::Attribute.new(attribute_name, options)
-      :attribute_added
     end
 
     def no_map?
@@ -42,10 +27,6 @@ module PluckMap
 
     def define_presenters!
       define_to_h!
-    end
-
-    def initialized?
-      @initialized
     end
 
     def pluck(query)
