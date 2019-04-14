@@ -1,6 +1,7 @@
 ## v1.0.0 (Unreleased)
 
 * BREAKING: Remove deprecated features/methods (@boblail)
+* FEATURE: Optimize `to_json` when a presenter doesn't need to process values in Ruby (@boblail)
 
 ## v0.6.1 (2019 May 12)
 

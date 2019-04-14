@@ -1,5 +1,7 @@
 require "pluck_map/attribute_builder"
+require "pluck_map/nodes"
 require "pluck_map/presenters"
+require "pluck_map/visitors"
 require "active_record"
 
 module PluckMap

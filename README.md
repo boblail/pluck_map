@@ -299,9 +299,11 @@ The gem's only runtime requirement is:
 
 It supports these databases out of the box:
 
- - PostgreSQL
- - MySQL
- - SQLite
+ - PostgreSQL 9.4+
+ - MySQL 5.7.22+
+ - SQLite 3.10.0+
+
+(Note: the versions given above are when certain JSON aggregate functions were introduced in each supported database. `PluckMap`'s core behavior will work with earlier versions of the database above but certain features like optimizations to `to_json` require the specified versions.)
 
 
 

@@ -17,22 +17,46 @@ class JsonPresenterTest < Minitest::Test
   end
 
 
-  should "pluck the identified fields for a model from the database" do
-    presenter = PluckMap[Author].define do
-      last_name
-    end
+  context "#to_json" do
+    should "present the requested fields" do
+      presenter = PluckMap[Author].define do
+        last_name
+      end
 
-    assert_equal JSON.dump([
-      { last_name: "Greene" },
-      { last_name: "Potok" }
-    ]), normalize(presenter.to_json(authors))
+      assert_json_equal <<~JSON, presenter.to_json(authors)
+      [
+        { "last_name": "Greene" },
+        { "last_name": "Potok" }
+      ]
+      JSON
+    end
   end
 
+  %i{ to_json__default to_json__optimized }.each do |method|
+    context "##{method}" do
+      should "present the requested fields" do
+        presenter = PluckMap[Author].define do
+          last_name
+        end
+
+        assert_json_equal <<~JSON, presenter.send(method, authors)
+        [
+          { "last_name": "Greene" },
+          { "last_name": "Potok" }
+        ]
+        JSON
+      end
+    end
+  end
 
 private
 
+  def assert_json_equal(a, b, *args)
+    assert_equal normalize(a), normalize(b), *args
+  end
+
   def normalize(json)
-    JSON.dump(JSON.parse(json))
+    JSON.dump(JSON.parse(json).map { |attributes| attributes.sort.to_h })
   end
 
 end
