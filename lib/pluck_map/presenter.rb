@@ -8,32 +8,15 @@ module PluckMap
 
     attr_reader :model, :attributes
 
-    def initialize(model = nil, attributes = nil, &block)
-      if block_given?
-        puts "DEPRECATION WARNING: `PluckMap::Presenter.new` will be deprecated. Use `PluckMap[Model].define` instead."
-        @attributes = PluckMap::AttributeBuilder.build(model: nil, &block)
-      else
-        @model = model
-        @attributes = attributes
-      end
-
-      if respond_to?(:define_presenters!, true)
-        puts "DEPRECATION WARNING: `define_presenters!` is deprecated; instead mix in a module that implements your presenter method (e.g. `to_h`). Optionally have the method redefine itself the first time it is called."
-        # because overridden `define_presenters!` will probably call `super`
-        PluckMap::Presenter.class_eval 'protected def define_presenters!; end'
-        define_presenters!
-      end
-    end
-
-    def no_map?
-      puts "DEPRECATION WARNING: `PluckMap::Presenter#no_map?` is deprecated. You can replace it with `!attributes.will_map?`"
-      !attributes.will_map?
+    def initialize(model, attributes)
+      @model = model
+      @attributes = attributes
     end
 
   protected
 
     def pluck(query)
-      if model && query.model != model
+      if query.model != model
         raise ArgumentError, "Query for #{query.model} but #{model} expected"
       end
 
@@ -87,11 +70,6 @@ module PluckMap
 
     def attributes_by_id
       attributes.by_id
-    end
-
-    def keys
-      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated; use #selects instead"
-      selects
     end
 
   end

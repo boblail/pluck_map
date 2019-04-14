@@ -18,12 +18,10 @@ module PluckMap
         raise ArgumentError, "You must define a block if you are going to select " <<
           "more than one expression from the database" if selects.length > 1 && !block
 
-        @selects = @selects.map do |select|
+        @selects.each do |select|
           if select.is_a?(String) && !select.is_a?(Arel::Nodes::SqlLiteral)
-            puts "DEPRECATION WARNING: Passing raw SQL as a String to :select is deprecated. Known-safe values can be passed by wrapping them in Arel.sql()."
-            Arel.sql(select)
-          else
-            select
+            raise ArgumentError, "#{select.inspect} is not a valid value for :select. " <<
+              "If a string of raw SQL is safe, wrap it in Arel.sql()."
           end
         end
       end
@@ -44,11 +42,7 @@ module PluckMap
     # This method constructs a Ruby expression that will
     # extract the appropriate values from each row that
     # correspond to this Attribute.
-    def to_ruby(selects = nil)
-      if selects
-        puts "DEPRECATION WARNING: PluckMap::Attribute#to_ruby no longer requires an argument. Replace `attribute.to_ruby(keys)` with `attribute.to_ruby`."
-      end
-
+    def to_ruby
       return @value.inspect if defined?(@value)
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"

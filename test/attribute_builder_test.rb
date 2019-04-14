@@ -75,6 +75,20 @@ class AttributeBuilderTest < Minitest::Test
     end
   end
 
+  should "prohibit raw SQL for :select" do
+    assert_raises ArgumentError do
+      PluckMap::AttributeBuilder.build(model: Author) do
+        name select: "first_name || ' ' || last_name"
+      end
+    end
+  end
+
+  should "accept Arel::Nodes::SqlLiteral :select" do
+    PluckMap::AttributeBuilder.build(model: Author) do
+      name select: Arel.sql("first_name || ' ' || last_name")
+    end
+  end
+
   should "coerce selects to an empty array of selects when value: is given" do
     attributes = PluckMap::AttributeBuilder.build(model: Author) do
       type value: "Author", selects: %i{ a b c }
