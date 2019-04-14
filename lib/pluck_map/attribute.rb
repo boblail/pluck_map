@@ -1,6 +1,7 @@
 module PluckMap
   class Attribute
     attr_reader :id, :selects, :name, :value, :block
+    attr_accessor :indexes
 
     def initialize(id, options={})
       @id = id
@@ -33,13 +34,12 @@ module PluckMap
     # This method constructs a Ruby expression that will
     # extract the appropriate values from each row that
     # correspond to this Attribute.
-    #
-    # The array of values will be correspond to the array
-    # of selects. This method determines which values pertain
-    # to it by figuring out which order its selects were selected in
-    def to_ruby(selects)
+    def to_ruby(selects = nil)
+      if selects
+        puts "DEPRECATION WARNING: PluckMap::Attribute#to_ruby no longer requires an argument. Replace `attribute.to_ruby(keys)` with `attribute.to_ruby`."
+      end
+
       return @value.inspect if defined?(@value)
-      indexes = self.selects.map { |select| selects.index(select) }
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"
       ruby = "invoke(:\"#{id}\", #{ruby})" if block

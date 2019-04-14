@@ -9,8 +9,18 @@ module PluckMap
 
     def initialize(&block)
       @attributes = PluckMap::AttributeBuilder.build(&block)
-      @attributes_by_id = attributes.index_by(&:id).with_indifferent_access
-      @selects = attributes.flat_map(&:selects).uniq
+
+      @attributes_by_id = {}
+      @selects = []
+      attributes.each do |attribute|
+        attribute.indexes = attribute.selects.map do |select|
+          selects.find_index(select) || begin
+            selects.push(select)
+            selects.length - 1
+          end
+        end
+        attributes_by_id[attribute.id] = attribute
+      end
 
       if respond_to?(:define_presenters!, true)
         puts "DEPRECATION WARNING: `define_presenters!` is deprecated; instead mix in a module that implements your presenter method (e.g. `to_h`). Optionally have the method redefine itself the first time it is called."
@@ -48,7 +58,7 @@ module PluckMap
     end
 
     def keys
-      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated; use #selects instead"
+      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated with no replacement"
       selects
     end
 
