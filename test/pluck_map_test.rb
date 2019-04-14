@@ -28,6 +28,18 @@ class PluckMapTest < Minitest::Test
     ], presenter.to_h(authors)
   end
 
+  should "pluck attributes from the relation's table when joins make them ambiguous" do
+    Book.create!(title: "The Chosen", author: authors.second)
+
+    presenter = PluckMap::Presenter.new do
+      id
+    end
+
+    authors_with_books = authors.joins("LEFT OUTER JOIN books ON books.author_id=authors.id")
+
+    assert_equal [{ id: 1 }, { id: 2 }], presenter.to_h(authors_with_books)
+  end
+
   context "when :value is given" do
     should "present the value statically for each result" do
       presenter = PluckMap::Presenter.new do
@@ -39,20 +51,6 @@ class PluckMapTest < Minitest::Test
         { type: "Author", last_name: "Greene" },
         { type: "Author", last_name: "Potok" }
       ], presenter.to_h(authors)
-    end
-
-    context "and it is falsey" do
-      should "present the value statically for each result" do
-        presenter = PluckMap::Presenter.new do
-          living value: false
-          last_name
-        end
-
-        assert_equal [
-          { living: false, last_name: "Greene" },
-          { living: false, last_name: "Potok" }
-        ], presenter.to_h(authors)
-      end
     end
   end
 
@@ -82,35 +80,22 @@ class PluckMapTest < Minitest::Test
     end
   end
 
-  context "when :select is given" do
-    should "pull the values from the specified column" do
+  context "when :select is a SQL statement" do
+    should "calculate the values using the specified expression" do
+      concat_sql = if Author.connection_config[:adapter] == "mysql2"
+        Arel.sql("CONCAT(first_name, ' ', last_name)")
+      else
+        Arel.sql("first_name || ' ' || last_name")
+      end
+
       presenter = PluckMap::Presenter.new do
-        lastName select: :last_name
+        name select: concat_sql
       end
 
       assert_equal [
-        { lastName: "Greene" },
-        { lastName: "Potok" }
+        { name: "Graham Greene" },
+        { name: "Chiam Potok" }
       ], presenter.to_h(authors)
-    end
-
-    context "and it is a SQL statement" do
-      should "calculate the values using the specified expression" do
-        concat_sql = if Author.connection_config[:adapter] == "mysql2"
-          Arel.sql("CONCAT(first_name, ' ', last_name)")
-        else
-          Arel.sql("first_name || ' ' || last_name")
-        end
-
-        presenter = PluckMap::Presenter.new do
-          name select: concat_sql
-        end
-
-        assert_equal [
-          { name: "Graham Greene" },
-          { name: "Chiam Potok" }
-        ], presenter.to_h(authors)
-      end
     end
   end
 

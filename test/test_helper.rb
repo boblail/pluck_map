@@ -10,6 +10,7 @@ require "shoulda/context"
 require "support/author"
 require "support/book"
 require "minitest/autorun"
+require "rr"
 require "pry"
 
 adapter = ENV.fetch("ACTIVE_RECORD_ADAPTER", "sqlite3")

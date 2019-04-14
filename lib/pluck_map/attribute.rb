@@ -1,12 +1,11 @@
 module PluckMap
   class Attribute
-    attr_reader :id, :selects, :name, :alias, :block
+    attr_reader :id, :selects, :name, :value, :block
 
     def initialize(id, options={})
       @id = id
       @selects = Array(options.fetch(:select, id))
       @name = options.fetch(:as, id)
-      @alias = name.to_s.tr("_", " ")
       @block = options[:map]
 
       if options.key? :value
@@ -23,17 +22,6 @@ module PluckMap
       block.call(*object)
     end
 
-    # These are the names of the values that are returned
-    # from the database (every row returned by the database
-    # will be a hash of key-value pairs)
-    #
-    # If we are only selecting one thing from the database
-    # then the PluckMapPresenter will automatically alias
-    # the select-expression, so the key will be the alias.
-    def keys
-      selects.length == 1 ? [self.alias] : selects
-    end
-
     def no_map?
       block.nil?
     end
@@ -47,15 +35,36 @@ module PluckMap
     # correspond to this Attribute.
     #
     # The array of values will be correspond to the array
-    # of keys. This method determines which values pertain
-    # to it by figuring out which order its keys were selected in
-    def to_ruby(keys)
+    # of selects. This method determines which values pertain
+    # to it by figuring out which order its selects were selected in
+    def to_ruby(selects)
       return @value.inspect if defined?(@value)
-      indexes = self.keys.map { |key| keys.index(key) }
+      indexes = self.selects.map { |select| selects.index(select) }
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"
       ruby = "invoke(:\"#{id}\", #{ruby})" if block
       ruby
+    end
+
+
+
+    def values
+      [id, selects, name, value, block]
+    end
+
+    def ==(other)
+      return false if self.class != other.class
+      self.values == other.values
+    end
+
+    def hash
+      values.hash
+    end
+
+    def eql?(other)
+      return true if self.equal?(other)
+      return false if self.class != other.class
+      self.values.eql?(other.values)
     end
   end
 end
