@@ -43,6 +43,7 @@ def run_without_aborting(*tasks)
   errors = []
 
   tasks.each do |task|
+    puts task
     Rake::Task[task].invoke
   rescue Exception
     errors << task

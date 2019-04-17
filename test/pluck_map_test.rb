@@ -112,4 +112,21 @@ class PluckMapTest < Minitest::Test
     end
   end
 
+  context "when a value is selected more than once" do
+    should "associate the right values with the right attributes" do
+      presenter = PluckMap::Presenter.new do
+        first select: :first_name
+        last select: :last_name
+        full select: %i{ first_name last_name }, map: ->(first, last) { "#{first} #{last}" }
+      end
+
+      mock.proxy(authors).pluck(:first_name, :last_name)
+
+      assert_equal [
+        { first: "Graham", last: "Greene", full: "Graham Greene" },
+        { first: "Chiam", last: "Potok", full: "Chiam Potok" }
+      ], presenter.to_h(authors)
+    end
+  end
+
 end
