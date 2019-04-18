@@ -1,4 +1,5 @@
 require "pluck_map/attribute"
+require "pluck_map/attributes"
 
 module PluckMap
   class AttributeBuilder
@@ -10,7 +11,7 @@ module PluckMap
       else
         builder.instance_eval(&block)
       end
-      builder.instance_variable_get(:@attributes).freeze
+      Attributes.new(builder.instance_variable_get(:@attributes))
     end
 
     def initialize
