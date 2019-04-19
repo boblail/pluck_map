@@ -8,13 +8,14 @@ This library provides a DSL for presenting ActiveRecord::Relations without insta
 
 ### Table of Contents
 
-- [Why PluckMap?](https://github.com/boblail/pluck_map#why-pluckmap)
+- [Why PluckMap?](#why-pluckmap)
 - Usage
-  - [Defining attributes to present](https://github.com/boblail/pluck_map#defining-attributes-to-present)
-  - [Presenting Records](https://github.com/boblail/pluck_map#presenting-records)
-- [Installation](https://github.com/boblail/pluck_map#installation)
-- [Requirements](https://github.com/boblail/pluck_map#requirements)
-- [Development & Contributing](https://github.com/boblail/pluck_map#development)
+  - [Defining attributes to present](#defining-attributes-to-present)
+  - [Relationships](#relationships)
+  - [Presenting Records](#presenting-records)
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Development & Contributing](#development)
 
 
 ## Why PluckMap?
@@ -207,6 +208,80 @@ presenter = PluckMap[Person].define do
 end
 ```
 
+### Relationships
+
+PluckMap can also describe nested data. There are two special methods in the `define` block that introduce child resources:
+
+ 1. `has_one` will treat the resource as a nested object or null
+ 2. `has_many` will treat the resource as an array of nested objects (which may be empty)
+
+The first argument to either of these methods is the name of an association on the presented model.
+
+You can use either of these methods with any kind of ActiveRecord relation (`belongs_to`, `has_one`, `has_many`, `has_and_belongs_to_many`), although it generally makes more sense to use `has_one` with Rails' singular associations and `has_many` with Rails' plural associations.
+
+#### `has_one`
+
+In the example below, assume
+
+```ruby
+class Book < ActiveRecord::Base
+  belongs_to :author
+end
+```
+
+This presenter :point_down: selects the title of every book as well as its author's name:
+
+```ruby
+presenter = PluckMap[Book].define do
+  title
+  has_one :author do
+    name
+  end
+end
+```
+
+(We can also write it using block variables, if that's easier to read.)
+
+```ruby
+presenter = PluckMap[Book].define do |book|
+  book.title
+  book.has_one :author do |author|
+    author.name
+  end
+end
+```
+
+Attributes defined for a relationship support all the same features as [attributes defined at the root level](#defining-attributes-to-present).
+
+
+#### `has_many`
+
+We can present the reverse of the above example with `has_many`. This example will select a list of authors and, for each, a list of the books they wrote:
+
+```ruby
+presenter = PluckMap[Author].define do
+  name
+  has_many :books do
+    title
+  end
+end
+```
+
+#### scopes
+
+An optional second argument to both `has_one` and `has_many` is a scope block that you can use to modify the query that would select the associated records. You can use any of ActiveRecord's standard [querying methods](https://guides.rubyonrails.org/active_record_querying.html) inside the scope block.
+
+In this example, we've altered our last presenter to ensure that books are listed alphabetically:
+
+```ruby
+presenter = PluckMap[Author].define do
+  name
+  has_many :books, -> { order(title: :asc) } do
+    title
+  end
+end
+```
+
 
 ### Presenting Records
 
@@ -303,7 +378,7 @@ It supports these databases out of the box:
  - MySQL 5.7.22+
  - SQLite 3.10.0+
 
-(Note: the versions given above are when certain JSON aggregate functions were introduced in each supported database. `PluckMap`'s core behavior will work with earlier versions of the database above but certain features like optimizations to `to_json` require the specified versions.)
+(Note: the versions given above are when certain JSON aggregate functions were introduced in each supported database. `PluckMap`'s core behavior will work with earlier versions of the database above but certain features like optimizations to `to_json` and relationships require the specified versions.)
 
 
 

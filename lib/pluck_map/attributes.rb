@@ -2,9 +2,10 @@ module PluckMap
   class Attributes
     include Enumerable
 
-    attr_reader :selects
+    attr_reader :selects, :model
 
-    def initialize(attributes)
+    def initialize(attributes, model)
+      @model = model
       @_attributes = attributes.freeze
       @_attributes_by_id = {}
       @selects = []
@@ -40,10 +41,21 @@ module PluckMap
       _attributes_by_id
     end
 
+    def to_json_array
+      PluckMap::BuildJsonArray.new(*selects.map do |select|
+        select = model.arel_table[select] if select.is_a?(Symbol)
+        select
+      end)
+    end
+
 
 
     def will_map?
       _attributes.any?(&:will_map?)
+    end
+
+    def nested?
+      _attributes.any?(&:nested?)
     end
 
 

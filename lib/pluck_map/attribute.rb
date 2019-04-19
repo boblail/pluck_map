@@ -14,9 +14,9 @@ module PluckMap
         @value = options[:value]
         @selects = []
       else
-        raise ArgumentError, "You must select at least one column" if selects.empty?
+        raise ArgumentError, "You must select at least one column" if @selects.empty?
         raise ArgumentError, "You must define a block if you are going to select " <<
-          "more than one expression from the database" if selects.length > 1 && !block
+          "more than one expression from the database" if @selects.length > 1 && !@block
 
         @selects.each do |select|
           if select.is_a?(String) && !select.is_a?(Arel::Nodes::SqlLiteral)
@@ -31,8 +31,19 @@ module PluckMap
       block.call(*object)
     end
 
+    def value?
+      defined?(@value)
+    end
+
     def will_map?
       !block.nil?
+    end
+
+    def nested?
+      false
+    end
+
+    def preload!(results)
     end
 
     # When the PluckMapPresenter performs the query, it will
@@ -43,11 +54,19 @@ module PluckMap
     # extract the appropriate values from each row that
     # correspond to this Attribute.
     def to_ruby
-      return @value.inspect if defined?(@value)
+      return @value.inspect if value?
       return "values[#{indexes[0]}]" if indexes.length == 1 && !block
       ruby = "values.values_at(#{indexes.join(", ")})"
       ruby = "invoke(:\"#{id}\", #{ruby})" if block
       ruby
+    end
+
+    def exec(values)
+      return @value if value?
+      return values[indexes[0]] if indexes.length == 1 && !block
+      _values = values.values_at(*indexes)
+      _values = apply(_values) if block
+      _values
     end
 
 

@@ -1,4 +1,5 @@
 require "pluck_map/attribute_builder"
+require "pluck_map/errors"
 require "pluck_map/nodes"
 require "pluck_map/presenters"
 require "pluck_map/visitors"
@@ -25,6 +26,9 @@ module PluckMap
       # puts "\e[95m#{query.select(*selects).to_sql}\e[0m"
       results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects) }
       return results unless block_given?
+      attributes.each do |attribute|
+        attribute.preload!(results)
+      end
       benchmark("map(#{query.table_name})") { yield results }
     end
 

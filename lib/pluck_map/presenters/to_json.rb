@@ -39,11 +39,24 @@ module PluckMap
       args = []
       attributes.each do |attribute|
         args << Arel::Nodes::Quoted.new(attribute.name)
-        arg = attribute.selects[0]
-        arg = attribute.model.arel_table[arg] if arg.is_a?(Symbol)
-        args << arg
+        args << send(:"prepare_#{attribute.class.name.gsub("::", "_")}", attribute)
       end
       PluckMap::BuildJsonObject.new(*args)
+    end
+
+    def prepare_PluckMap_Attribute(attribute)
+      return Arel::Nodes::Quoted.new(attribute.value) if attribute.value?
+      arg = attribute.selects[0]
+      arg = attribute.model.arel_table[arg] if arg.is_a?(Symbol)
+      arg
+    end
+
+    def prepare_PluckMap_Relationships_Many(attribute)
+      PluckMap::JsonSubqueryAggregate.new(attribute.scope, to_json_object(attribute.attributes))
+    end
+
+    def prepare_PluckMap_Relationships_One(attribute)
+      Arel.sql("(#{attribute.scope.select(to_json_object(attribute.attributes)).to_sql})")
     end
 
     def wrap_aggregate(subquery)
