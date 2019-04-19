@@ -36,7 +36,19 @@ namespace :test do
       t.libs << "test"
       t.libs << "lib"
       t.test_files = FileList["test/**/*_test.rb"]
-    end  end
+    end
+  end
+end
+
+namespace :benchmark do
+  ADAPTERS.each do |adapter|
+    desc "Run benchmarks on #{adapter}"
+    task adapter => "db:#{adapter}:env" do
+      unless require_relative "test/benchmarks"
+        run_benchmarks!
+      end
+    end
+  end
 end
 
 def run_without_aborting(*tasks)
@@ -46,6 +58,7 @@ def run_without_aborting(*tasks)
     puts task
     Rake::Task[task].invoke
   rescue Exception
+    puts "\e[31m#{$!.class}: #{$!.message}\e[0m"
     errors << task
   end
 
@@ -55,6 +68,12 @@ end
 desc "Run #{ADAPTERS.join(', ')} tests"
 task :test do
   tasks = ADAPTERS.map { |adapter| "test:#{adapter}" }
+  run_without_aborting(*tasks)
+end
+
+desc "Run #{ADAPTERS.join(', ')} benchmarks"
+task :benchmark do
+  tasks = ADAPTERS.map { |adapter| "benchmark:#{adapter}" }
   run_without_aborting(*tasks)
 end
 
