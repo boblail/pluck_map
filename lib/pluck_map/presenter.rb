@@ -3,7 +3,7 @@ require "pluck_map/presenters"
 
 module PluckMap
   class Presenter
-    include HashPresenter, JsonPresenter
+    include CsvPresenter, HashPresenter, JsonPresenter
 
     attr_reader :attributes
 
