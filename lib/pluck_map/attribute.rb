@@ -1,10 +1,11 @@
 module PluckMap
   class Attribute
-    attr_reader :id, :selects, :name, :value, :block
+    attr_reader :id, :model, :selects, :name, :value, :block
     attr_accessor :indexes
 
-    def initialize(id, options={})
+    def initialize(id, model, options={})
       @id = id
+      @model = model
       @selects = Array(options.fetch(:select, id))
       @name = options.fetch(:as, id)
       @block = options[:map]
