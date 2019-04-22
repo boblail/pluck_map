@@ -34,9 +34,9 @@ We can skip that unnecessary instantiation by using `pluck`:
   end
 ```
 
-This tends to be about one order of magnitude faster the first example.
+In [a simple benchmark](https://github.com/boblail/pluck_map/blob/master/test/benchmarks.rb), the second example is 3× faster than the first and allocates half as much memory. :rocket: (Mileage my vary, of course, but in real applications with more complex models, I've gotten more like a 10× improvement at bottlenecks.)
 
-It is straightforward but verbose (we repeat the attribute names at least three times) and changing a block like this produces noisy diffs:
+One drawback to this technique is its verbosity — we repeat the attribute names at least three times and changes to blocks like this make for noisy diffs:
 
 ```diff
   def index
@@ -53,9 +53,7 @@ It is straightforward but verbose (we repeat the attribute names at least three 
   end
 ```
 
-And when we're presenting large or complex objects, the list of attributes we send to `pluck` or arguments we declare in the `map` block can get unwieldy!
-
-The `PluckMap::Presenter` is simply a shorthand for generating the above pluck-map pattern. Using it, we could write our example like this:
+`PluckMap::Presenter` gives us a shorthand for generating the above pluck-map pattern. Using it, we could write our example like this:
 
 ```ruby
   def index
