@@ -10,18 +10,6 @@ module PluckMap
     def initialize(&block)
       @attributes = PluckMap::AttributeBuilder.build(&block)
 
-      @attributes_by_id = {}
-      @selects = []
-      attributes.each do |attribute|
-        attribute.indexes = attribute.selects.map do |select|
-          selects.find_index(select) || begin
-            selects.push(select)
-            selects.length - 1
-          end
-        end
-        attributes_by_id[attribute.id] = attribute
-      end
-
       if respond_to?(:define_presenters!, true)
         puts "DEPRECATION WARNING: `define_presenters!` is deprecated; instead mix in a module that implements your presenter method (e.g. `to_h`). Optionally have the method redefine itself the first time it is called."
         # because overridden `define_presenters!` will probably call `super`
@@ -51,10 +39,17 @@ module PluckMap
     end
 
   private
-    attr_reader :attributes_by_id, :selects
 
     def invoke(attribute_id, object)
       attributes_by_id.fetch(attribute_id).apply(object)
+    end
+
+    def selects
+      attributes.selects
+    end
+
+    def attributes_by_id
+      attributes.by_id
     end
 
     def keys
