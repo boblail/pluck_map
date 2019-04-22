@@ -67,5 +67,3 @@ def run_benchmarks!
 
   DatabaseCleaner.clean
 end
-
-run_benchmarks!

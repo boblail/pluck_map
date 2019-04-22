@@ -44,9 +44,8 @@ namespace :benchmark do
   ADAPTERS.each do |adapter|
     desc "Run benchmarks on #{adapter}"
     task adapter => "db:#{adapter}:env" do
-      unless require_relative "test/benchmarks"
-        run_benchmarks!
-      end
+      require_relative "test/benchmarks"
+      run_benchmarks!
     end
   end
 end
