@@ -45,25 +45,25 @@ def define_benchmarks!(x)
   end
 end
 
-def run_benchmarks!
-  DatabaseCleaner.start
 
-  Author.create!(100.times.map { {
-    first_name: Faker::Name.first_name,
-    last_name: Faker::Name.last_name
-  } })
 
-  Author.uncached do
-    Benchmark.ips do |x|
-      define_benchmarks!(x)
-      x.compare!
-    end
+DatabaseCleaner.start
 
-    Benchmark.memory do |x|
-      define_benchmarks!(x)
-      x.compare!
-    end
+Author.create!(100.times.map { {
+  first_name: Faker::Name.first_name,
+  last_name: Faker::Name.last_name
+} })
+
+Author.uncached do
+  Benchmark.ips do |x|
+    define_benchmarks!(x)
+    x.compare!
   end
 
-  DatabaseCleaner.clean
+  Benchmark.memory do |x|
+    define_benchmarks!(x)
+    x.compare!
+  end
 end
+
+DatabaseCleaner.clean

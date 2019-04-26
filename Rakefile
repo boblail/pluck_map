@@ -44,8 +44,7 @@ namespace :benchmark do
   ADAPTERS.each do |adapter|
     desc "Run benchmarks on #{adapter}"
     task adapter => "db:#{adapter}:env" do
-      require_relative "test/benchmarks"
-      run_benchmarks!
+      load File.expand_path("test/benchmarks.rb", __dir__)
     end
   end
 end
