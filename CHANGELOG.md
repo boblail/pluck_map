@@ -1,3 +1,7 @@
+## Unreleased
+
+* FIX: Use `PluckMap::NullLogger` when `Rails.logger` is `nil` (@boblail)
+
 ## v0.4.0 (2019 Apr 16)
 
 * REFACTOR: Introduced several DEPRECATION WARNINGs that will be harvested in v1.0.0 (@boblail)
