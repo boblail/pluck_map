@@ -2,6 +2,9 @@
 
 * FEATURE: Add `to_json` presenter method (@boblail)
 * FEATURE: Add `to_csv` presenter method (@boblail)
+
+## v0.4.1 (2019 Apr 26)
+
 * FIX: Use `PluckMap::NullLogger` when `Rails.logger` is `nil` (@boblail)
 
 ## v0.4.0 (2019 Apr 16)
