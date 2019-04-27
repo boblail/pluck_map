@@ -7,5 +7,5 @@ module PluckMap
     attr_accessor :logger
   end
 
-  @logger = defined?(Rails) ? Rails.logger : PluckMap::NullLogger.new
+  @logger = (Rails.logger if defined?(Rails)) || PluckMap::NullLogger.new
 end
