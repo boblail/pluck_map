@@ -1,4 +1,4 @@
-## Unreleased
+## v0.4.1 (2019 Apr 26)
 
 * FIX: Use `PluckMap::NullLogger` when `Rails.logger` is `nil` (@boblail)
 
