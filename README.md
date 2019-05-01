@@ -34,7 +34,7 @@ We can skip that unnecessary instantiation by using `pluck`:
   end
 ```
 
-In [a simple benchmark](https://github.com/boblail/pluck_map/blob/master/test/benchmarks.rb), the second example is 3× faster than the first and allocates half as much memory. :rocket: (Mileage my vary, of course, but in real applications with more complex models, I've gotten more like a 10× improvement at bottlenecks.)
+In [a simple benchmark](https://github.com/boblail/pluck_map/blob/master/test/benchmarks.rb), the second example is 3× faster than the first and allocates half as much memory. :rocket: (Mileage may vary, of course, but in real applications with more complex models, I've gotten more like a 10× improvement at bottlenecks.)
 
 One drawback to this technique is its verbosity — we repeat the attribute names at least three times and changes to blocks like this make for noisy diffs:
 
