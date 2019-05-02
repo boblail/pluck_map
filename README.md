@@ -58,7 +58,7 @@ One drawback to this technique is its verbosity — we repeat the attribute name
 ```ruby
   def index
     messages = Message.created_by(current_user).after(3.weeks.ago)
-    presenter = PluckMap::Presenter.new do |q|
+    presenter = PluckMap[Message].define do |q|
       q.id
       q.postedAt select: :created_at
       q.text
@@ -75,7 +75,7 @@ This DSL also makes it easy to make fields optional:
 ```diff
   def index
     messages = Message.created_by(current_user).after(3.weeks.ago)
-    presenter = PluckMap::Presenter.new do |q|
+    presenter = PluckMap[Message].define do |q|
       q.id
       q.postedAt select: :created_at
       q.text

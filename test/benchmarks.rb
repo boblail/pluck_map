@@ -16,7 +16,7 @@ ActiveRecord::Base.establish_connection(
 load File.join(File.dirname(__FILE__), "support", "schema.rb")
 
 def define_benchmarks!(x)
-  presenter = PluckMap::Presenter.new do
+  presenter = PluckMap[Author].define do
     id
     first_name
     last_name

@@ -18,7 +18,7 @@ class PluckMapTest < Minitest::Test
 
 
   should "pluck the identified fields for a model from the database" do
-    presenter = PluckMap::Presenter.new do
+    presenter = PluckMap[Author].define do
       last_name
     end
 
@@ -31,7 +31,7 @@ class PluckMapTest < Minitest::Test
   should "pluck attributes from the relation's table when joins make them ambiguous" do
     Book.create!(title: "The Chosen", author: authors.second)
 
-    presenter = PluckMap::Presenter.new do
+    presenter = PluckMap[Author].define do
       id
     end
 
@@ -42,7 +42,7 @@ class PluckMapTest < Minitest::Test
 
   context "when :value is given" do
     should "present the value statically for each result" do
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         type value: "Author"
         last_name
       end
@@ -56,7 +56,7 @@ class PluckMapTest < Minitest::Test
 
   context "when :as is given" do
     should "present the plucked value with the specified key" do
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         last_name as: :lastName
       end
 
@@ -68,7 +68,7 @@ class PluckMapTest < Minitest::Test
 
     context "and it contains spaces" do
       should "still work" do
-        presenter = PluckMap::Presenter.new do
+        presenter = PluckMap[Author].define do
           last_name as: "Last Name"
         end
 
@@ -88,7 +88,7 @@ class PluckMapTest < Minitest::Test
         Arel.sql("first_name || ' ' || last_name")
       end
 
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         name select: concat_sql
       end
 
@@ -101,7 +101,7 @@ class PluckMapTest < Minitest::Test
 
   context "when :map is given" do
     should "yields the selected values to map" do
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         name select: %i{ first_name last_name }, map: ->(first, last) { "#{first} #{last}" }
       end
 
@@ -114,7 +114,7 @@ class PluckMapTest < Minitest::Test
 
   context "when a value is selected more than once" do
     should "associate the right values with the right attributes" do
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         first select: :first_name
         last select: :last_name
         full select: %i{ first_name last_name }, map: ->(first, last) { "#{first} #{last}" }

@@ -19,7 +19,7 @@ class CsvPresenterTest < Minitest::Test
 
   context "#to_csv" do
     should "pluck the identified fields for a model from the database" do
-      presenter = PluckMap::Presenter.new do
+      presenter = PluckMap[Author].define do
         first_name as: "Name, First"
         last_name as: "Name, Last"
       end

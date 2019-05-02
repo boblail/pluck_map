@@ -18,7 +18,7 @@ class JsonPresenterTest < Minitest::Test
 
 
   should "pluck the identified fields for a model from the database" do
-    presenter = PluckMap::Presenter.new do
+    presenter = PluckMap[Author].define do
       last_name
     end
 

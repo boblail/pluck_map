@@ -17,9 +17,11 @@ class BackwardsCompatibilityTest < Minitest::Test
 
       mock.instance_of(klass).define_for_json_api!
 
-      klass.new do
+      presenter = klass.new do
         last_name
       end
+
+      presenter.to_h(Author.all)
     end
   end
 

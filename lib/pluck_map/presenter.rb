@@ -5,10 +5,16 @@ module PluckMap
   class Presenter
     include CsvPresenter, HashPresenter, JsonPresenter
 
-    attr_reader :attributes
+    attr_reader :model, :attributes
 
-    def initialize(&block)
-      @attributes = PluckMap::AttributeBuilder.build(&block)
+    def initialize(model = nil, attributes = nil, &block)
+      if block_given?
+        puts "DEPRECATION WARNING: `PluckMap::Presenter.new` will be deprecated. Use `PluckMap[Model].define` instead."
+        @attributes = PluckMap::AttributeBuilder.build(model: nil, &block)
+      else
+        @model = model
+        @attributes = attributes
+      end
 
       if respond_to?(:define_presenters!, true)
         puts "DEPRECATION WARNING: `define_presenters!` is deprecated; instead mix in a module that implements your presenter method (e.g. `to_h`). Optionally have the method redefine itself the first time it is called."
@@ -25,6 +31,10 @@ module PluckMap
   protected
 
     def pluck(query)
+      if model && query.model != model
+        raise ArgumentError, "Query for #{query.model} but #{model} expected"
+      end
+
       # puts "\e[95m#{query.select(*selects).to_sql}\e[0m"
       results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects) }
       return results unless block_given?
@@ -53,7 +63,7 @@ module PluckMap
     end
 
     def keys
-      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated with no replacement"
+      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated; use #selects instead"
       selects
     end
 
