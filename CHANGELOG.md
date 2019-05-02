@@ -1,5 +1,7 @@
-## Unreleased
+## v0.5.0 (2019 May 1)
 
+* REFACTOR: Introduced a new syntax for defining PluckMap Presenters and deprecated
+  calling `PluckMap::Presenter.new` with a block
 * FEATURE: Add `to_json` presenter method (@boblail)
 * FEATURE: Add `to_csv` presenter method (@boblail)
 
