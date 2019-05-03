@@ -1,19 +1,7 @@
-require_relative "test_helper"
+load File.expand_path("test_helper.rb", __dir__)
 require "faker"
 require "benchmark/ips"
 require "benchmark/memory"
-require "database_cleaner"
-
-adapter = ENV.fetch("ACTIVE_RECORD_ADAPTER", "sqlite3")
-database = adapter == "sqlite3" ? ":memory:" : "pluck_map_test"
-
-ActiveRecord::Base.establish_connection(
-  adapter: adapter,
-  host: "localhost",
-  database: database,
-  verbosity: "quiet")
-
-load File.join(File.dirname(__FILE__), "support", "schema.rb")
 
 def define_benchmarks!(x)
   presenter = PluckMap[Author].define do
