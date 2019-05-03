@@ -55,7 +55,11 @@ module PluckMap
     end
 
     def selects
-      attributes.selects
+      attributes.selects.map.with_index { |select, index|
+        select = select.is_a?(Symbol) ? select : select.as("pluck_select_#{index}")
+        select = Arel.sql(select.to_sql) if ActiveRecord.version.segments.take(2) == [4,2] && select.respond_to?(:to_sql)
+        select
+      }
     end
 
     def attributes_by_id
