@@ -42,6 +42,12 @@ module PluckMap
 
 
 
+    def will_map?
+      _attributes.any?(&:will_map?)
+    end
+
+
+
     def ==(other)
       return false if self.class != other.class
       _attributes == other.send(:_attributes)

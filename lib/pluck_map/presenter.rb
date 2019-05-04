@@ -25,7 +25,8 @@ module PluckMap
     end
 
     def no_map?
-      attributes.all?(&:no_map?)
+      puts "DEPRECATION WARNING: `PluckMap::Presenter#no_map?` is deprecated. You can replace it with `!attributes.will_map?`"
+      !attributes.will_map?
     end
 
   protected
