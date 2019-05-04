@@ -5,6 +5,8 @@
 
 This library provides a DSL for presenting ActiveRecord::Relations without instantiating ActiveRecord models. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
 
+### Why?
+
 Suppose you have an action like this:
 
 ```ruby
@@ -18,9 +20,9 @@ Suppose you have an action like this:
   end
 ```
 
-This instantiates a `Message` for every result, gets the attributes out of it, and then immediately discards it.
+:point_up: This instantiates a `Message` for every result, gets the attributes out of it, and then immediately discards it.
 
-We can skip that unnecessary instantiation by using `pluck`:
+We can skip that unnecessary instantiation by using [`pluck`](https://api.rubyonrails.org/classes/ActiveRecord/Calculations.html#method-i-pluck):
 
 ```ruby
   def index
@@ -86,6 +88,114 @@ This DSL also makes it easy to make fields optional:
   end
 ```
 
+### How is this different from [Jbuilder](https://github.com/rails/jbuilder)?
+
+Jbuilder gives you a similar DSL for defining JSON to be presented but it operators on instances of ActiveRecord objects rather than producing a query to pluck just the values we need from the database.
+
+
+
+## Usage
+
+### Attributes
+
+#### Syntax
+
+Define attributes using either of these syntaxes:
+
+ 1. Without the block variable
+
+    ```ruby
+    presenter = PluckMap[Book].define do
+      title
+    end
+    ```
+
+ 2. With the block variable
+
+    ```ruby
+    presenter = PluckMap[Book].define do |q|
+      q.title
+    end
+    ```
+
+Apart from the repetition of the block variable, the difference between the two styles is the value of `self` within the block. In the first case, `self` will be `PluckMap::AttributesBuilder`. In the second, `self` will be the containing object. The former is less repetitious but the latter can be useful if you want to refer to local methods or instance variables in the context.
+
+#### `:as` and `:select`
+
+:point_down: This will construct a query to select `books.title` from the database and present the value of each title with the key (or column name) `"title"`:
+
+```ruby
+presenter = PluckMap[Book].define do
+  title
+end
+```
+
+There are two ways to change the name of the key that is presented. Both of the following examples will select `authors.first_name` from the database and present it as `"firstName"`:
+
+
+ 1. Using `:as`
+
+    ```ruby
+    presenter = PluckMap[Author].define do
+      first_name as: "firstName"
+    end
+    ```
+
+ 2. Using `:select`
+
+    ```ruby
+    presenter = PluckMap[Author].define do
+      firstName select: :first_name
+    end
+    ```
+
+You can also pass raw SQL expressions to `:select`:
+
+```ruby
+presenter = PluckMap[Person].define do
+  name select: "CONCAT(first_name, ' ', last_name)"
+end
+```
+
+#### `:map`
+
+In the example above, we constructed `name` from `first_name` and `last_name` with a SQL expression. There are many reasons why we might want to process values before presenting them. When possible, it's usually more efficient to do this work in the query itself, but there are times when it's necessary or expedient to do it in Ruby. Use `:map` to process values returned from the query before they are presented.
+
+Here are a couple of examples:
+
+- Constructing `"name"` with `:map`:
+    ```ruby
+    presenter = PluckMap[Person].define do
+      name select: %i[ first_name last_name ], map: ->(first, last) { "#{first} #{last}" }
+    end
+    ```
+
+- Formatting phone numbers with `:map`:
+    ```ruby
+    presenter = PluckMap[Person].define do
+      phoneNumber select: %i[ phone_number ], map: ->(number) { PhoneNumberFormatter.format(number) }
+    end
+    ```
+
+#### `:value`
+
+You can also hard-code a value to be used and it won't be queried from the database. There are two ways of expressing this:
+
+```ruby
+presenter = PluckMap[Person].define do
+  id
+  type "Person"
+end
+```
+
+```ruby
+presenter = PluckMap[Person].define do
+  id
+  type value: "Person"
+end
+```
+
+
 
 ## Installation
 
@@ -104,11 +214,26 @@ Or install it yourself as:
     $ gem install pluck_map
 
 
+### Requirements
+
+The gem's only runtime requirement is:
+
+ - [activerecord](https://rubygems.org/gems/activerecord) 4.2+
+
+It supports these databases out of the box:
+
+ - PostgreSQL
+ - MySQL
+ - SQLite
+
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
 
 
 ## Contributing
