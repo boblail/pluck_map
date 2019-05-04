@@ -1,3 +1,7 @@
+## Unreleased
+
+* REFACTOR: Deprecated `Presenter#no_map?` and introduced `Attributes#will_map?` to replace it
+
 ## v0.5.0 (2019 May 1)
 
 * REFACTOR: Introduced a new syntax for defining PluckMap Presenters and deprecated

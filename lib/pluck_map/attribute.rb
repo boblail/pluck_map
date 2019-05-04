@@ -24,8 +24,8 @@ module PluckMap
       block.call(*object)
     end
 
-    def no_map?
-      block.nil?
+    def will_map?
+      !block.nil?
     end
 
     # When the PluckMapPresenter performs the query, it will
