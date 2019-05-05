@@ -13,14 +13,22 @@ require "minitest/autorun"
 require "rr"
 require "pry"
 
-adapter = ENV.fetch("ACTIVE_RECORD_ADAPTER", "sqlite3")
-database = adapter == "sqlite3" ? ":memory:" : "pluck_map_test"
-
-ActiveRecord::Base.establish_connection(
-  adapter: adapter,
+config = {
+  adapter: ENV.fetch("ACTIVE_RECORD_ADAPTER", "sqlite3"),
   host: "localhost",
-  database: database,
-  verbosity: "quiet")
+  database: "pluck_map_test",
+  verbosity: "quiet"
+}
+
+case config[:adapter]
+when "sqlite3"
+  config[:database] = ":memory:"
+when "mysql2"
+  # Allows us to concatenate strings with pipes — `first_name || ' ' || last_name`
+  config[:variables] = { sql_mode: "PIPES_AS_CONCAT" }
+end
+
+ActiveRecord::Base.establish_connection(config)
 
 load File.join(File.dirname(__FILE__), "support", "schema.rb")
 
