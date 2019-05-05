@@ -5,11 +5,11 @@ class CsvPresenterTest < Minitest::Test
 
   def setup
     DatabaseCleaner.start
-    Author.create!([
+    Person.create!([
       { first_name: "Graham", last_name: "Greene" },
       { first_name: "Chiam", last_name: "Potok" }
     ])
-    @authors = Author.order(:last_name)
+    @authors = Person.order(:last_name)
   end
 
   def teardown
@@ -18,8 +18,8 @@ class CsvPresenterTest < Minitest::Test
 
 
   context "#to_csv" do
-    should "pluck the identified fields for a model from the database" do
-      presenter = PluckMap[Author].define do
+    should "pluck the identified fields from the database" do
+      presenter = PluckMap[Person].define do
         first_name as: "Name, First"
         last_name as: "Name, Last"
       end

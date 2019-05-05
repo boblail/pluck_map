@@ -5,11 +5,11 @@ class PluckMapTest < Minitest::Test
 
   def setup
     DatabaseCleaner.start
-    Author.create!([
+    Person.create!([
       { first_name: "Graham", last_name: "Greene" },
       { first_name: "Chiam", last_name: "Potok" }
     ])
-    @authors = Author.order(:last_name)
+    @authors = Person.order(:last_name)
   end
 
   def teardown
@@ -18,7 +18,7 @@ class PluckMapTest < Minitest::Test
 
 
   should "pluck the identified fields for a model from the database" do
-    presenter = PluckMap[Author].define do
+    presenter = PluckMap[Person].define do
       last_name
     end
 
@@ -31,32 +31,32 @@ class PluckMapTest < Minitest::Test
   should "pluck attributes from the relation's table when joins make them ambiguous" do
     Book.create!(title: "The Chosen", author: authors.second)
 
-    presenter = PluckMap[Author].define do
+    presenter = PluckMap[Person].define do
       id
     end
 
-    authors_with_books = authors.joins("LEFT OUTER JOIN books ON books.author_id=authors.id")
+    authors_with_books = authors.joins("LEFT OUTER JOIN books ON books.author_id=people.id")
 
     assert_equal [{ id: 1 }, { id: 2 }], presenter.to_h(authors_with_books)
   end
 
   context "when :value is given" do
     should "present the value statically for each result" do
-      presenter = PluckMap[Author].define do
-        type value: "Author"
+      presenter = PluckMap[Person].define do
+        type value: "Person"
         last_name
       end
 
       assert_equal [
-        { type: "Author", last_name: "Greene" },
-        { type: "Author", last_name: "Potok" }
+        { type: "Person", last_name: "Greene" },
+        { type: "Person", last_name: "Potok" }
       ], presenter.to_h(authors)
     end
   end
 
   context "when :as is given" do
     should "present the plucked value with the specified key" do
-      presenter = PluckMap[Author].define do
+      presenter = PluckMap[Person].define do
         last_name as: :lastName
       end
 
@@ -68,7 +68,7 @@ class PluckMapTest < Minitest::Test
 
     context "and it contains spaces" do
       should "still work" do
-        presenter = PluckMap[Author].define do
+        presenter = PluckMap[Person].define do
           last_name as: "Last Name"
         end
 
@@ -82,7 +82,7 @@ class PluckMapTest < Minitest::Test
 
   context "when :select is a SQL statement" do
     should "calculate the values using the specified expression" do
-      presenter = PluckMap[Author].define do
+      presenter = PluckMap[Person].define do
         name select: Arel.sql("first_name || ' ' || last_name")
       end
 
@@ -93,7 +93,7 @@ class PluckMapTest < Minitest::Test
     end
 
     should "correctly cast types when using the same SQL function multiple times" do
-      presenter = PluckMap[Author].define do
+      presenter = PluckMap[Person].define do
         last_name select: Arel.sql("COALESCE(NULL, last_name)")
         id select: Arel.sql("COALESCE(NULL, id)")
       end
@@ -106,8 +106,8 @@ class PluckMapTest < Minitest::Test
   end
 
   context "when :map is given" do
-    should "yields the selected values to map" do
-      presenter = PluckMap[Author].define do
+    should "yield the selected values to map" do
+      presenter = PluckMap[Person].define do
         name select: %i{ first_name last_name }, map: ->(first, last) { "#{first} #{last}" }
       end
 
@@ -120,7 +120,7 @@ class PluckMapTest < Minitest::Test
 
   context "when a value is selected more than once" do
     should "associate the right values with the right attributes" do
-      presenter = PluckMap[Author].define do
+      presenter = PluckMap[Person].define do
         first select: :first_name
         last select: :last_name
         full select: %i{ first_name last_name }, map: ->(first, last) { "#{first} #{last}" }

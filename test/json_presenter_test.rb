@@ -5,11 +5,11 @@ class JsonPresenterTest < Minitest::Test
 
   def setup
     DatabaseCleaner.start
-    Author.create!([
+    Person.create!([
       { first_name: "Graham", last_name: "Greene" },
       { first_name: "Chiam", last_name: "Potok" }
     ])
-    @authors = Author.order(:last_name)
+    @authors = Person.order(:last_name)
   end
 
   def teardown
@@ -19,7 +19,7 @@ class JsonPresenterTest < Minitest::Test
 
   context "#to_json" do
     should "present the requested fields" do
-      presenter = PluckMap[Author].define do
+      presenter = PluckMap[Person].define do
         last_name
       end
 
@@ -35,7 +35,7 @@ class JsonPresenterTest < Minitest::Test
   %i{ to_json__default to_json__optimized }.each do |method|
     context "##{method}" do
       should "present the requested fields" do
-        presenter = PluckMap[Author].define do
+        presenter = PluckMap[Person].define do
           last_name
         end
 
