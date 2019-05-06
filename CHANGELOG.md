@@ -1,11 +1,11 @@
-## Unreleased
+## v0.6.0 (2019 May 5)
 
-* REFACTOR: Deprecated `Presenter#no_map?` and introduced `Attributes#will_map?` to replace it
+* REFACTOR: Deprecated `Presenter#no_map?` and introduced `Attributes#will_map?` to replace it (@boblail)
+* REFACTOR: Deprecated passing strings to `:select` (Known-safe values can be wrapped in `Arel.sql`) (@boblail)
 
 ## v0.5.0 (2019 May 1)
 
-* REFACTOR: Introduced a new syntax for defining PluckMap Presenters and deprecated
-  calling `PluckMap::Presenter.new` with a block
+* REFACTOR: Introduced a new syntax for defining PluckMap Presenters and deprecated calling `PluckMap::Presenter.new` with a block (@boblail)
 * FEATURE: Add `to_json` presenter method (@boblail)
 * FEATURE: Add `to_csv` presenter method (@boblail)
 
