@@ -25,4 +25,23 @@ class BackwardsCompatibilityTest < Minitest::Test
     end
   end
 
+  context "Selecting Raw SQL strings" do
+    setup do
+      DatabaseCleaner.start
+      Author.create!([{ first_name: "Graham", last_name: "Greene" }])
+    end
+
+    teardown do
+      DatabaseCleaner.clean
+    end
+
+    should "still work" do
+      presenter = PluckMap[Author].define do
+        name select: "first_name || ' ' || last_name"
+      end
+
+      assert_equal [{ name: "Graham Greene" }], presenter.to_h(Author.all)
+    end
+  end
+
 end

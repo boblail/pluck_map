@@ -17,6 +17,15 @@ module PluckMap
         raise ArgumentError, "You must select at least one column" if selects.empty?
         raise ArgumentError, "You must define a block if you are going to select " <<
           "more than one expression from the database" if selects.length > 1 && !block
+
+        @selects = @selects.map do |select|
+          if select.is_a?(String) && !select.is_a?(Arel::Nodes::SqlLiteral)
+            puts "DEPRECATION WARNING: Passing raw SQL as a String to :select is deprecated. Known-safe values can be passed by wrapping them in Arel.sql()."
+            Arel.sql(select)
+          else
+            select
+          end
+        end
       end
     end
 

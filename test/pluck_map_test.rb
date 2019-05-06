@@ -82,14 +82,8 @@ class PluckMapTest < Minitest::Test
 
   context "when :select is a SQL statement" do
     should "calculate the values using the specified expression" do
-      concat_sql = if Author.connection_config[:adapter] == "mysql2"
-        Arel.sql("CONCAT(first_name, ' ', last_name)")
-      else
-        Arel.sql("first_name || ' ' || last_name")
-      end
-
       presenter = PluckMap[Author].define do
-        name select: concat_sql
+        name select: Arel.sql("first_name || ' ' || last_name")
       end
 
       assert_equal [

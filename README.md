@@ -153,7 +153,7 @@ You can also pass raw SQL expressions to `:select`:
 
 ```ruby
 presenter = PluckMap[Person].define do
-  name select: "CONCAT(first_name, ' ', last_name)"
+  name select: Arel.sql("CONCAT(first_name, ' ', last_name)")
 end
 ```
 
