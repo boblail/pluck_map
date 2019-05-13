@@ -1,5 +1,8 @@
 require "pluck_map/attribute_builder"
+require "pluck_map/errors"
+require "pluck_map/nodes"
 require "pluck_map/presenters"
+require "pluck_map/visitors"
 require "active_record"
 
 module PluckMap
@@ -8,38 +11,24 @@ module PluckMap
 
     attr_reader :model, :attributes
 
-    def initialize(model = nil, attributes = nil, &block)
-      if block_given?
-        puts "DEPRECATION WARNING: `PluckMap::Presenter.new` will be deprecated. Use `PluckMap[Model].define` instead."
-        @attributes = PluckMap::AttributeBuilder.build(model: nil, &block)
-      else
-        @model = model
-        @attributes = attributes
-      end
-
-      if respond_to?(:define_presenters!, true)
-        puts "DEPRECATION WARNING: `define_presenters!` is deprecated; instead mix in a module that implements your presenter method (e.g. `to_h`). Optionally have the method redefine itself the first time it is called."
-        # because overridden `define_presenters!` will probably call `super`
-        PluckMap::Presenter.class_eval 'protected def define_presenters!; end'
-        define_presenters!
-      end
-    end
-
-    def no_map?
-      puts "DEPRECATION WARNING: `PluckMap::Presenter#no_map?` is deprecated. You can replace it with `!attributes.will_map?`"
-      !attributes.will_map?
+    def initialize(model, attributes)
+      @model = model
+      @attributes = attributes
     end
 
   protected
 
     def pluck(query)
-      if model && query.model != model
+      if query.model != model
         raise ArgumentError, "Query for #{query.model} but #{model} expected"
       end
 
       # puts "\e[95m#{query.select(*selects).to_sql}\e[0m"
       results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects) }
       return results unless block_given?
+      attributes.each do |attribute|
+        attribute.preload!(results)
+      end
       benchmark("map(#{query.table_name})") { yield results }
     end
 
@@ -87,11 +76,6 @@ module PluckMap
 
     def attributes_by_id
       attributes.by_id
-    end
-
-    def keys
-      puts "DEPRECATION WARNING: PluckMap::Presenter#keys is deprecated; use #selects instead"
-      selects
     end
 
   end

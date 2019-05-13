@@ -1,3 +1,9 @@
+## v1.0.0 (Unreleased)
+
+* BREAKING: Remove deprecated features/methods (@boblail)
+* FEATURE: Optimize `to_json` when a presenter doesn't need to process values in Ruby (@boblail)
+* FEATURE: Add `has_many` and `has_one` DSL for presenting nested resources (@boblail)
+
 ## v0.6.1 (2019 May 12)
 
 * FIX: Aliased SQL expressions to work-around a bug with Rails Postgres adapter (@kobsy)

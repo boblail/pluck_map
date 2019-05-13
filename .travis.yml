@@ -1,9 +1,13 @@
 language: ruby
 rvm: 2.5.5
 
-# Rails 6 requires Postgres 9.3+
+# we need MySQL 5.7+ to support JSON aggregation
+dist: xenial
+
 addons:
-  postgresql: "9.3"
+  # Rails 6 requires Postgres 9.3+
+  # We need Postgres 9.4+ to support JSON aggregation
+  postgresql: "9.4"
 
 services:
   - postgresql

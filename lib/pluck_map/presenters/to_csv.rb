@@ -1,7 +1,13 @@
+require "pluck_map/errors"
+
 module PluckMap
   module CsvPresenter
 
     def to_csv(query)
+      if attributes.nested?
+        raise PluckMap::UnsupportedAttributeError, "to_csv can not be used to present nested attributes"
+      end
+
       define_to_csv!
       to_csv(query)
     end
