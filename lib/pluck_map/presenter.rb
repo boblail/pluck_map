@@ -57,7 +57,28 @@ module PluckMap
 
     def selects
       attributes.selects.map.with_index { |select, index|
-        select = select.is_a?(Symbol) ? select : select.as("pluck_select_#{index}")
+
+        # Workaround for a bug that exists in Rails at the time of this commit.
+        # See:
+        #
+        #    https://github.com/rails/rails/pull/36186
+        #
+        # Prior to the PR above, Rails will treat two results that have the
+        # same name as having the same type. On Postgres, values that are the
+        # result of an expression are given the name of the last function
+        # called in the expression. For example:
+        #
+        #    psql> SELECT COALESCE(NULL, 'four'), COALESCE(NULL, 4);
+        #     coalesce | coalesce
+        #    ----------+----------
+        #     four     |        4
+        #    (1 row)
+        #
+        # This patch mitigates that problem by aliasing SQL expressions before
+        # they are used in select statements.
+        select = select.is_a?(Symbol) ? select : select.as("__pluckmap_#{index}")
+
+        # On Rails 4.2, `pluck` can't accept Arel nodes
         select = Arel.sql(select.to_sql) if ActiveRecord.version.segments.take(2) == [4,2] && select.respond_to?(:to_sql)
         select
       }
