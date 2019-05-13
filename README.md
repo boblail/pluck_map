@@ -196,6 +196,70 @@ end
 ```
 
 
+### Presenting Records
+
+#### `:to_h`
+
+Once you've defined a presenter, pass an `ActiveRecord::Relation` to `to_h` to get an array of hashes:
+
+```ruby
+presenter = PluckMap[Person].define do
+  id
+  type value: "Person"
+end
+
+presenter.to_h(Person.where(id: 1)) # => [{ id: 1, type: "Person" }]
+```
+
+#### `:to_json` and `:to_csv`
+
+You can `.map` that array to construct whatever document you need, but PluckMap implements two methods that are optimized for generating JSON and CSV:
+
+```ruby
+presenter.to_json(Person.where(id: 1)) # => '[{"id":1,"type":"Person"}]'
+presenter.to_csv(Person.where(id: 1)) # => "id,type\n1,Person"
+```
+
+#### Custom Presenters
+
+You can define new (or override existing) presenter methods by mixing modules into `PluckMap::Presenter`. Here's an example of how you might create a presenter that produces an Excel document using an imaginary `Excel::Document` library:
+
+```ruby
+module PluckToXlsxPresenter
+  def to_excel(query)
+    # Every presenter method accepts an ActiveRecord::Relation
+    # and passes it to `pluck` which yields the results.
+    pluck(query) do |results|
+
+      # Use an imaginary Excel gem that has an Excel::Document object
+      spreadsheet = Excel::Document.new
+
+      # Fill in a Header row
+      # `attributes` is a method on `PluckMap::Presenter` that describes
+      # the attributes you defined when you constructed the presenter.
+      attributes.each_with_index do |attribute, i|
+        spreadsheet.cell[0, i] = attribute.name
+      end
+
+      # Results is an array of rows (Rows are an array of values)
+      results.each_with_index do |values, row_number|
+        attributes.each_with_index do |attribute, column_number|
+
+          # `attribute.exec` will pick the right values from the row
+          # and perform any required processing.
+          spreadsheet.cell[row_number + 1, column_number] = attribute.exec(values)
+        end
+      end
+
+      spreadsheet.render # `pluck` returns the result of the block
+    end
+  end
+end
+
+PluckMap::Presenter.send :include, PluckToXlsxPresenter
+```
+
+
 
 ## Installation
 
