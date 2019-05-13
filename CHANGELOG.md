@@ -1,3 +1,7 @@
+## v0.6.1 (2019 May 12)
+
+* FIX: Aliased SQL expressions to work-around a bug with Rails Postgres adapter (@kobsy)
+
 ## v0.6.0 (2019 May 5)
 
 * REFACTOR: Deprecated `Presenter#no_map?` and introduced `Attributes#will_map?` to replace it (@boblail)
