@@ -77,7 +77,7 @@ module PluckMap
         #
         # This patch mitigates that problem by aliasing SQL expressions before
         # they are used in select statements.
-        select = select.is_a?(Symbol) ? select : select.as("__pluckmap_#{index}")
+        select = select.as("__pluckmap_#{index}") if select.respond_to?(:as)
 
         # On Rails 4.2, `pluck` can't accept Arel nodes
         select = Arel.sql(select.to_sql) if ActiveRecord.version.segments.take(2) == [4,2] && select.respond_to?(:to_sql)
