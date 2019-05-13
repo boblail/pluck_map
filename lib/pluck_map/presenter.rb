@@ -1,5 +1,6 @@
 require "pluck_map/attribute_builder"
 require "pluck_map/presenters"
+require "active_record"
 
 module PluckMap
   class Presenter
