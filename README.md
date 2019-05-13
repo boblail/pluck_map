@@ -5,7 +5,19 @@
 
 This library provides a DSL for presenting ActiveRecord::Relations without instantiating ActiveRecord models. It is useful when a Rails controller action does little more than fetch several records from the database and present them in some other data format (like JSON or CSV).
 
-### Why?
+
+### Table of Contents
+
+- [Why PluckMap?](https://github.com/boblail/pluck_map#why-pluckmap)
+- Usage
+  - [Defining attributes to present](https://github.com/boblail/pluck_map#defining-attributes-to-present)
+  - [Presenting Records](https://github.com/boblail/pluck_map#presenting-records)
+- [Installation](https://github.com/boblail/pluck_map#installation)
+- [Requirements](https://github.com/boblail/pluck_map#requirements)
+- [Development & Contributing](https://github.com/boblail/pluck_map#development)
+
+
+## Why PluckMap?
 
 Suppose you have an action like this:
 
@@ -96,7 +108,7 @@ Jbuilder gives you a similar DSL for defining JSON to be presented but it operat
 
 ## Usage
 
-### Attributes
+### Defining Attributes to Present
 
 #### Syntax
 
@@ -278,7 +290,8 @@ Or install it yourself as:
     $ gem install pluck_map
 
 
-### Requirements
+
+## Requirements
 
 The gem's only runtime requirement is:
 
