@@ -40,6 +40,25 @@ class PluckMapTest < Minitest::Test
     assert_equal [{ id: 1 }, { id: 2 }], presenter.to_h(authors_with_books)
   end
 
+  context "when given a relationship that is a subclass of its model" do
+    setup do
+      Novel.create!([
+        { title: "The Chosen" },
+        { title: "The Third Man" }
+      ])
+      @novels = Novel.order(:title)
+    end
+
+    should "pluck the identified fields as normal" do
+      presenter = PluckMap[Book].define do
+        title
+      end
+
+      assert_equal [{ title: "The Chosen" }, { title: "The Third Man" }],
+        presenter.to_h(@novels)
+    end
+  end
+
   context "when :value is given" do
     should "present the value statically for each result" do
       presenter = PluckMap[Person].define do
