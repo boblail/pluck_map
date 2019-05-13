@@ -91,6 +91,18 @@ class PluckMapTest < Minitest::Test
         { name: "Chiam Potok" }
       ], presenter.to_h(authors)
     end
+
+    should "correctly cast types when using the same SQL function multiple times" do
+      presenter = PluckMap[Author].define do
+        last_name select: Arel.sql("COALESCE(NULL, last_name)")
+        id select: Arel.sql("COALESCE(NULL, id)")
+      end
+
+      assert_equal [
+        { last_name: "Greene", id: authors.find_by(last_name: "Greene").id },
+        { last_name: "Potok", id: authors.find_by(last_name: "Potok").id }
+      ], presenter.to_h(authors)
+    end
   end
 
   context "when :map is given" do
