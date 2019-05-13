@@ -57,7 +57,7 @@ module PluckMap
     end
 
     def selects
-      attributes.selects.map.with_index { |select, index|
+      @selects ||= attributes.selects.map.with_index { |select, index|
 
         # Workaround for a bug that exists in Rails at the time of this commit.
         # See:
