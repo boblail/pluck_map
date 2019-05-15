@@ -28,10 +28,4 @@ ActiveRecord::Schema.define(:version => 1) do
     t.timestamps
   end
 
-  create_table "people", :force => true do |t|
-    t.string :first_name
-    t.string :last_name
-    t.timestamps
-  end
-
 end
