@@ -19,7 +19,7 @@ module PluckMap
   protected
 
     def pluck(query)
-      if query.model != model
+      unless query.model <= model
         raise ArgumentError, "Query for #{query.model} but #{model} expected"
       end
 
