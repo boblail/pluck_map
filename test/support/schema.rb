@@ -8,6 +8,7 @@ ActiveRecord::Schema.define(:version => 1) do
 
   create_table "books", :force => true do |t|
     t.string :title
+    t.string :type, null: false, default: "Novel"
     t.integer :author_id
     t.timestamps
   end
