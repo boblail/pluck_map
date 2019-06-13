@@ -115,4 +115,16 @@ class AttributeBuilderTest < Minitest::Test
     assert_equal %i{ first_name last_name }, attributes[0].selects
   end
 
+  should "allow structured attributes" do
+    attributes = PluckMap::AttributeBuilder.build(model: Book) do
+      author do
+        id select: :author_id
+        type select: :author_type
+      end
+    end
+
+    assert_equal :author, attributes[0].name
+    assert_equal %i{ author_id author_type }, attributes[0].attributes.selects
+  end
+
 end
