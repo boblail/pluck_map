@@ -208,6 +208,19 @@ presenter = PluckMap[Person].define do
 end
 ```
 
+### Structured attributes
+
+You can also nest attributes by passing a block to the attribute method:
+
+```ruby
+presenter = PluckMap[Person].define do
+  parent do
+    id select: :parent_id
+    type "Parent"
+  end
+end
+```
+
 ### Relationships
 
 PluckMap can also describe nested data. There are two special methods in the `define` block that introduce child resources:

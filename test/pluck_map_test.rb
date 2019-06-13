@@ -154,4 +154,28 @@ class PluckMapTest < Minitest::Test
     end
   end
 
+  context "when presenting a structured attribute" do
+    should "present the attribute as nested" do
+      greene = authors.first
+      potok = authors.last
+      Book.create!([
+        { title: "The Tenth Man", author_id: greene.id, author_type: "Person" },
+        { title: "The Chosen", author_id: potok.id, author_type: "Person" }
+      ])
+
+      presenter = PluckMap[Book].define do
+        title
+        author do
+          id select: :author_id
+          type select: :author_type
+        end
+      end
+
+      assert_equal [
+        { title: "The Chosen", author: { id: potok.id, type: "Person" } },
+        { title: "The Tenth Man", author: { id: greene.id, type: "Person" } }
+      ], presenter.to_h(Book.order(:title))
+    end
+  end
+
 end

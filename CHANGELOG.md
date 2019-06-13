@@ -1,3 +1,7 @@
+## Unreleased
+
+* FEATURE: Add structured attributes to allow nesting attributes as a hash (@kobsy)
+
 ## v1.0.0.rc1 (2019 May 12)
 
 * BREAKING: Remove deprecated features/methods (@boblail)

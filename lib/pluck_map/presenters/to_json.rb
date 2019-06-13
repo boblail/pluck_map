@@ -51,6 +51,10 @@ module PluckMap
       arg
     end
 
+    def prepare_PluckMap_StructuredAttribute(attribute)
+      to_json_object(attribute.attributes)
+    end
+
     def prepare_PluckMap_Relationships_Many(attribute)
       PluckMap::JsonSubqueryAggregate.new(attribute.scope, to_json_object(attribute.attributes))
     end

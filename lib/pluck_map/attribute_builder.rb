@@ -1,4 +1,5 @@
 require "pluck_map/attribute"
+require "pluck_map/structured_attribute"
 require "pluck_map/attributes"
 require "pluck_map/relationships"
 
@@ -21,10 +22,11 @@ module PluckMap
       @model = model
     end
 
-    def method_missing(attribute_name, *args)
+    def method_missing(attribute_name, *args, &block)
       options = args.extract_options!
       options[:value] = args.first unless args.empty?
-      @attributes.push Attribute.new(attribute_name, @model, options)
+      @attributes.push block.nil? ? Attribute.new(attribute_name, @model, options) :
+        StructuredAttribute.new(attribute_name, @model, block, options)
       :attribute_added
     end
 
