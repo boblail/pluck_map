@@ -1,3 +1,7 @@
+## v0.6.2 (2019 Jun 13)
+
+* FIX: Allow presenting a subclass of the presenter's model (@kobsy)
+
 ## v0.6.1 (2019 May 12)
 
 * FIX: Aliased SQL expressions to work-around a bug with Rails Postgres adapter (@kobsy)
