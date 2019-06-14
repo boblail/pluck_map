@@ -11,12 +11,12 @@ class JsonPresenterTest < Minitest::Test
     ])
     @authors = Person.order(:last_name)
 
-    greene, potok = authors.pluck(:id)
+    @greene, @potok = authors.pluck(:id)
     Book.create!([
-      { author_id: greene, author_type: "Person", title: "The Tenth Man" },
-      { author_id: greene, author_type: "Person", title: "The Power and the Glory" },
-      { author_id: potok, author_type: "Person", title: "The Chosen" },
-      { author_id: potok, author_type: "Person", title: "My Name is Asher Lev" }
+      { author_id: @greene, author_type: "Person", title: "The Tenth Man" },
+      { author_id: @greene, author_type: "Person", title: "The Power and the Glory" },
+      { author_id: @potok, author_type: "Person", title: "The Chosen" },
+      { author_id: @potok, author_type: "Person", title: "My Name is Asher Lev" }
     ])
     @books = Book.order(title: :desc)
   end
@@ -132,6 +132,29 @@ class JsonPresenterTest < Minitest::Test
             { "title": "The Power and the Glory", "isbn": { "number": "978-9994715640" } },
             { "title": "The Chosen", "isbn": null },
             { "title": "My Name is Asher Lev", "isbn": null }
+          ]
+          JSON
+        end
+      end
+
+      context "with structured attributes:" do
+        setup do
+          @presenter = PluckMap[Book].define do
+            title
+            author do
+              id select: :author_id
+              type select: :author_type
+            end
+          end
+        end
+
+        should "present the requested fields" do
+          assert_json_equal <<~JSON, presenter.send(method, books)
+          [
+            { "title": "The Tenth Man", "author": { "id": #{@greene}, "type": "Person" } },
+            { "title": "The Power and the Glory", "author": { "id": #{@greene}, "type": "Person" } },
+            { "title": "The Chosen", "author": { "id": #{@potok}, "type": "Person" } },
+            { "title": "My Name is Asher Lev", "author": { "id": #{@potok}, "type": "Person" } }
           ]
           JSON
         end
