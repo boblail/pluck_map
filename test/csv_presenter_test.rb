@@ -31,16 +31,17 @@ class CsvPresenterTest < Minitest::Test
       TEXT
     end
 
-    should "raise an error if the presenter uses relationships" do
-      presenter = PluckMap[Person].define do
-        last_name
-        has_many :books do
-          title
+    should "raise an error if the presenter uses structured attributes" do
+      presenter = PluckMap[Book].define do
+        title
+        author do
+          id select: :author_id
+          type select: :author_type
         end
       end
 
       assert_raises PluckMap::UnsupportedAttributeError do
-        presenter.to_csv(authors)
+        presenter.to_csv(Book.all)
       end
     end
   end

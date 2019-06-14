@@ -4,14 +4,10 @@ module PluckMap
   class StructuredAttribute < Attribute
     attr_reader :attributes
 
-    def initialize(id, model, block, options={})
-      @model = model
+    def initialize(attribute_name, model, block, options={})
       @attributes = AttributeBuilder.build(model: model, &block)
-      options = options.slice(:as).merge(
-        select: attributes.selects,
-        map: build_map)
-
-      super(id, model, options)
+      options = options.slice(:as).merge(select: build_select, map: build_map)
+      super(attribute_name, model, options)
     end
 
     def will_map?
@@ -22,7 +18,11 @@ module PluckMap
       true
     end
 
-  private
+  protected
+
+    def build_select
+      attributes.selects
+    end
 
     def build_map
       lambda do |*values|
