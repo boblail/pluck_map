@@ -146,7 +146,7 @@ private
   end
 
   def normalize(json)
-    JSON.dump(JSON.parse(json).map { |attributes| attributes.sort.to_h })
+    JSON.pretty_generate(JSON.parse(json).map { |attributes| attributes.sort.to_h })
   end
 
 end
