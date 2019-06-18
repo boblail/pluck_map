@@ -1,4 +1,4 @@
-## Unreleased
+## v1.0.0.rc2 (2019 Jun 17)
 
 * FEATURE: Add structured attributes to allow nesting attributes as a hash (@kobsy)
 
