@@ -1,4 +1,4 @@
-## Unreleased
+## v1.0.0 (2019 Jul 17)
 
 * FIX: Respect default_scopes for relationships (@boblail)
 
