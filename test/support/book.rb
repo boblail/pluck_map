@@ -10,3 +10,8 @@ class RealOrFictionalBook < ActiveRecord::Base
   has_and_belongs_to_many :characters, inverse_of: :books
   has_one :isbn
 end
+
+class BookWithDefaultScope < ActiveRecord::Base
+  self.table_name = "books"
+  default_scope -> { where("title like 'The%'" ) }
+end

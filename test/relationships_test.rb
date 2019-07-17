@@ -32,18 +32,35 @@ class RelationshipsTest < Minitest::Test
 
     should "yield the selected values to map" do
       presenter = PluckMap[Person].define do
-        last_name as: :by
+        last_name as: :author
         has_many :books, as: :novels do
           title
         end
       end
 
       assert_equal [
-        { by: "Greene", novels: [
+        { author: "Greene", novels: [
           { title: "The Power and the Glory" },
           { title: "The Tenth Man" } ] },
-        { by: "Potok", novels: [
+        { author: "Potok", novels: [
           { title: "My Name is Asher Lev" },
+          { title: "The Chosen" } ] }
+      ], presenter.to_h(authors)
+    end
+
+    should "respect default scopes" do
+      presenter = PluckMap[Person].define do
+        last_name as: :author
+        has_many :books_that_start_with_the, as: :novels do
+          title
+        end
+      end
+
+      assert_equal [
+        { author: "Greene", novels: [
+          { title: "The Power and the Glory" },
+          { title: "The Tenth Man" } ] },
+        { author: "Potok", novels: [
           { title: "The Chosen" } ] }
       ], presenter.to_h(authors)
     end
