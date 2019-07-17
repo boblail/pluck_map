@@ -5,7 +5,7 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string :type, null: false, default: "Novel"
     t.integer :author_id
     t.string :author_type
-    t.timestamps
+    t.timestamps null: false
   end
 
   create_table "books_characters", :id => false, :force => true do |t|
@@ -26,7 +26,7 @@ ActiveRecord::Schema.define(:version => 1) do
   create_table "people", :force => true do |t|
     t.string :first_name
     t.string :last_name
-    t.timestamps
+    t.timestamps null: false
   end
 
 end

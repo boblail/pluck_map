@@ -19,6 +19,11 @@ appraise "rails-5.2" do
   gem "sqlite3", "~> 1.3.6"
 end
 
+appraise "rails-6.0" do
+  gem "activerecord", "~> 6.0.0.rc1"
+  gem "sqlite3", "~> 1.4.0"
+end
+
 appraise "rails-edge" do
   gem "rails", git: "https://github.com/rails/rails.git", branch: "master", require: "activerecord"
   gem "sqlite3", "~> 1.4.0"

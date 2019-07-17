@@ -53,7 +53,11 @@ module PluckMap
       end
 
       def scope_for(association)
-        AssociationScope.create.scope(association)
+        default_scope_for(association).merge(AssociationScope.create.scope(association))
+      end
+
+      def default_scope_for(association)
+        association.klass.all
       end
 
       # ActiveRecord constructs an Association from a Reflection and an
