@@ -1,15 +1,21 @@
 module PluckMap
   module HashPresenter
 
-    def to_h(query)
+    def self.included(base)
+      def base.to_h(query, **kargs)
+        new(query).to_h(**kargs)
+      end
+    end
+
+    def to_h
       define_to_h!
-      to_h(query)
+      to_h
     end
 
     private def define_to_h!
       ruby = <<-RUBY
-      def to_h(query)
-        pluck(query) do |results|
+      def to_h
+        pluck do |results|
           results.map { |values| values = Array(values); { #{attributes.map { |attribute| "#{attribute.name.inspect} => #{attribute.to_ruby}" }.join(", ")} } }
         end
       end

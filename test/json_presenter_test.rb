@@ -48,7 +48,7 @@ class JsonPresenterTest < Minitest::Test
           last_name
         end
 
-        assert_json_equal <<~JSON, presenter.send(method, authors)
+        assert_json_equal <<~JSON, presenter.new(authors).send(method)
         [
           { "last_name": "Greene" },
           { "last_name": "Potok" }
@@ -70,7 +70,7 @@ class JsonPresenterTest < Minitest::Test
         end
 
         should "present the requested fields" do
-          assert_json_equal <<~JSON, presenter.send(method, authors)
+          assert_json_equal <<~JSON, presenter.new(authors).send(method)
           [
             { "last_name": "Greene",
               "books": [
@@ -100,7 +100,7 @@ class JsonPresenterTest < Minitest::Test
         end
 
         should "present the requested fields" do
-          assert_json_equal <<~JSON, presenter.send(method, books)
+          assert_json_equal <<~JSON, presenter.new(books).send(method)
           [
             { "author": { "name": "Graham Greene" }, "title": "The Tenth Man" },
             { "author": { "name": "Graham Greene" }, "title": "The Power and the Glory" },
@@ -126,7 +126,7 @@ class JsonPresenterTest < Minitest::Test
         end
 
         should "yield the selected values to map" do
-          assert_json_equal <<~JSON, presenter.send(method, books)
+          assert_json_equal <<~JSON, presenter.new(books).send(method)
           [
             { "title": "The Tenth Man", "isbn": { "number": "978-0671507947" } },
             { "title": "The Power and the Glory", "isbn": { "number": "978-9994715640" } },
@@ -149,7 +149,7 @@ class JsonPresenterTest < Minitest::Test
         end
 
         should "present the requested fields" do
-          assert_json_equal <<~JSON, presenter.send(method, books)
+          assert_json_equal <<~JSON, presenter.new(books).send(method)
           [
             { "title": "The Tenth Man", "author": { "id": #{@greene}, "type": "Person" } },
             { "title": "The Power and the Glory", "author": { "id": #{@greene}, "type": "Person" } },

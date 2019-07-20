@@ -3,30 +3,36 @@ require "json"
 module PluckMap
   module JsonPresenter
 
-    def to_json(query, json: default_json, **)
+    def self.included(base)
+      def base.to_json(query, **kargs)
+        new(query).to_json(**kargs)
+      end
+    end
+
+    def to_json(json: default_json, **)
       if attributes.will_map?
-        to_json__default(query, json: json)
+        to_json__default(json: json)
       else
-        to_json__optimized(query)
+        to_json__optimized
       end
     end
 
   private
 
-    def to_json__default(query, json: default_json, **)
-      json.dump(to_h(query))
+    def to_json__default(json: default_json, **)
+      json.dump(to_h)
     end
 
-    def to_json__optimized(query, **)
+    def to_json__optimized(**)
       define_to_json__optimized!
-      to_json__optimized(query)
+      to_json__optimized
     end
 
     def define_to_json__optimized!
       sql = compile(to_json_object(attributes).as("object"))
 
       ruby = <<-RUBY
-      private def to_json__optimized(query, **)
+      private def to_json__optimized(**)
         sql = wrap_aggregate(query.select(Arel.sql(#{sql.inspect})))
         query.connection.select_value(sql)
       end

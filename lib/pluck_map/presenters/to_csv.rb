@@ -3,13 +3,19 @@ require "pluck_map/errors"
 module PluckMap
   module CsvPresenter
 
-    def to_csv(query)
+    def self.included(base)
+      def base.to_csv(query, **kargs)
+        new(query).to_csv(**kargs)
+      end
+    end
+
+    def to_csv
       if attributes.nested?
         raise PluckMap::UnsupportedAttributeError, "to_csv can not be used to present nested attributes"
       end
 
       define_to_csv!
-      to_csv(query)
+      to_csv
     end
 
     private def define_to_csv!
@@ -17,8 +23,8 @@ module PluckMap
 
       headers = CSV.generate_line(attributes.map(&:name))
       ruby = <<-RUBY
-      def to_csv(query)
-        pluck(query) do |results|
+      def to_csv
+        pluck do |results|
           rows = [#{headers.inspect}]
           results.each_with_object(rows) do |values, rows|
             values = Array(values)

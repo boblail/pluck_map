@@ -68,7 +68,7 @@ def define_benchmarks!(x)
   end
 
   x.report("PluckMap") do
-    presenter.send(:to_json__default, Person.order(:last_name))
+    presenter.new(Person.order(:last_name)).send(:to_json__default)
   end
 
   x.report("Pluck Json") do
@@ -76,7 +76,7 @@ def define_benchmarks!(x)
   end
 
   x.report("to_json__optimized") do
-    presenter.send(:to_json__optimized, Person.order(:last_name))
+    presenter.new(Person.order(:last_name)).send(:to_json__optimized)
   end
 end
 
