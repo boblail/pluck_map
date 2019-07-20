@@ -37,6 +37,10 @@ module PluckMap
 
 
 
+    def ids
+      _attributes_by_id.keys
+    end
+
     def by_id
       _attributes_by_id
     end
