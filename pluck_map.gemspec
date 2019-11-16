@@ -17,6 +17,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
+  # uses `keyword_init` argument of `Struct.new`
+  spec.required_ruby_version = '>= 2.5.0'
+
   spec.add_dependency "activerecord", ">= 4.2"
 
   spec.add_development_dependency "appraisal"

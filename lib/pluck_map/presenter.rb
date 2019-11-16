@@ -9,20 +9,21 @@ module PluckMap
   class Presenter
     include CsvPresenter, HashPresenter, JsonPresenter
 
-    attr_reader :model, :attributes
+    attr_reader :model, :attributes, :query
 
-    def initialize(model, attributes)
-      @model = model
-      @attributes = attributes
-    end
-
-  protected
-
-    def pluck(query)
+    def initialize(model, attributes, query)
       unless query.model <= model
         raise ArgumentError, "Query for #{query.model} but #{model} expected"
       end
 
+      @model = model
+      @attributes = attributes
+      @query = query
+    end
+
+  protected
+
+    def pluck
       # puts "\e[95m#{query.select(*selects).to_sql}\e[0m"
       results = benchmark("pluck(#{query.table_name})") { query.pluck(*selects) }
       return results unless block_given?
@@ -70,6 +71,7 @@ module PluckMap
 
         # On Rails 4.2, `pluck` can't accept Arel nodes
         select = Arel.sql(select.to_sql) if ActiveRecord.version.segments.take(2) == [4,2] && select.respond_to?(:to_sql)
+
         select
       }
     end

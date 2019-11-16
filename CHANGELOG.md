@@ -1,3 +1,8 @@
+## Unreleased
+
+* BREAKING: `define` returns a subclass of `PluckMap::Presenter` instead of an instance (@boblail)
+* FEATURE: `define` also creates structs to correspond to each presenter (@boblail)
+
 ## v1.0.0 (2019 Jul 17)
 
 * FIX: Respect default_scopes for relationships (@boblail)
