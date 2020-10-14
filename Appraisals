@@ -20,7 +20,7 @@ appraise "rails-5.2" do
 end
 
 appraise "rails-6.0" do
-  gem "activerecord", "~> 6.0.0.rc1"
+  gem "activerecord", "~> 6.0.0"
   gem "sqlite3", "~> 1.4.0"
 end
 
